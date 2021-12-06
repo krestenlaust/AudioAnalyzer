@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Aud.IO.Exceptions;
 
-#nullable enable
 namespace Aud.IO
 {
     /// <summary>
