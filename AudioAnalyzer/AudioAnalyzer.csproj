@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FSharp.Core, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\FSharp.Core.5.0.0\lib\netstandard2.0\FSharp.Core.dll</HintPath>
+    </Reference>
     <Reference Include="MathNet.Numerics, Version=4.15.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MathNet.Numerics.4.15.0\lib\net461\MathNet.Numerics.dll</HintPath>
     </Reference>
@@ -87,6 +90,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Aud.IO.Algorithms\Aud.IO.Algorithms.fsproj">
+      <Project>{6c1aba8c-8d7c-46c9-b38a-c677a15bb997}</Project>
+      <Name>Aud.IO.Algorithms</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Aud.IO\Aud.IO.csproj">
       <Project>{a25ee2f1-07c9-440c-b46a-4dff7e7c11c8}</Project>
       <Name>Aud.IO</Name>

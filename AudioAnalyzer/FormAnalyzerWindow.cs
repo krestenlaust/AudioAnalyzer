@@ -10,15 +10,16 @@ using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using Aud.IO;
 using Aud.IO.Formats;
+using Aud.IO.Algorithms;
 using MathNet.Numerics;
 using MathNet.Numerics.IntegralTransforms;
+using System.Numerics;
 
 namespace AudioAnalyzer
 {
     public partial class FormAnalyzerWindow : Form
     {
         private const int MinWindowSamples = 500;
-        private const double PixelsPerDisplayPoint = 2;
 
         //private Point mouseDown;
         /// <summary>
@@ -30,6 +31,7 @@ namespace AudioAnalyzer
         private int selectedRangeIndexEnd;
         private WaveFile editedWaveFile;
         private double[] amplitudeData;
+        private Complex32[] frequencyData;
 
         public FormAnalyzerWindow()
         {
@@ -38,7 +40,7 @@ namespace AudioAnalyzer
 
         private void FormAnalyzerWindow_Load(object sender, EventArgs e)
         {
-
+            
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -64,27 +66,26 @@ namespace AudioAnalyzer
             editedWaveFile = new WaveFile(path);
             amplitudeData = editedWaveFile.GetDemodulatedAudio();
 
-            PopulateTimeDomainGraph();
+            PopulateTimeDomainGraph(amplitudeData);
         }
 
-        private void PopulateTimeDomainGraph()
+        private void PopulateTimeDomainGraph(double[] analogAmplitude)
         {
             chartTimeDomain.Series[0].Points.Clear();
-            chartFrequencyDomain.Series[0].Points.Clear();
 
             //float chartPixelWidth = chartTimeDomain.ChartAreas[0].InnerPlotPosition.Width / 100 * chartTimeDomain.Size.Width;
             //int interval = (int)(amplitudeData.Length / (chartPixelWidth / PixelsPerDisplayPoint));
             int interval = 1;
 
-            for (int i = 0; i < amplitudeData.Length; i++)
+            for (int i = 0; i < analogAmplitude.Length; i++)
             {
-                if (i % interval != 0 && i != amplitudeData.Length - 1)
+                if (i % interval != 0 && i != analogAmplitude.Length - 1)
                 {
                     continue;
                 }
 
                 double xValue = (double)i / editedWaveFile.WaveData.Subchunk1.SampleRate;
-                chartTimeDomain.Series[0].Points.AddXY(xValue, amplitudeData[i]);
+                chartTimeDomain.Series[0].Points.AddXY(xValue, analogAmplitude[i]);
             }
         }
 
@@ -155,9 +156,10 @@ namespace AudioAnalyzer
                 }
 
                 mouseDownPixelX = e.Location.X;
+            }
 
-                // ingen grund til at markere mellem e.Location.X og e.Location.X,
-                // skip dette kald.
+            if (e.Location.X < 0)
+            {
                 return;
             }
             
@@ -225,6 +227,7 @@ namespace AudioAnalyzer
             }
 
             toolStripStatusLabelSelectedSamples.Text = $"Du markede {rangeLength} datapunkter";
+            statusStripMain.Update();
         }
 
         private void og250ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -245,6 +248,7 @@ namespace AudioAnalyzer
         private void backgroundWorkerFFT_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             toolStripProgressBarFFT.Value = e.ProgressPercentage;
+            statusStripMain.Update();
         }
 
         private void backgroundWorkerFFT_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -258,15 +262,59 @@ namespace AudioAnalyzer
                 return;
             }
 
-            PopulateFrequencyDomainGraph((Complex32[])e.Result);
+            frequencyData = (Complex32[])e.Result;
+            PopulateFrequencyDomainGraph(frequencyData);
+        }
+
+        public static int FloorPower2(int x)
+        {
+            if (x < 1)
+            {
+                return 1;
+            }
+            return (int)Math.Pow(2, (int)Math.Log(x, 2));
         }
 
         private void backgroundWorkerFFT_DoWork(object sender, DoWorkEventArgs e)
         {
             backgroundWorkerFFT.ReportProgress(0);
             (int offset, int length) = ((int, int))e.Argument;
-            e.Result = CalculateFFT(offset, length);
+
+            int windowLength = FloorPower2(length);
+            double[] inputData = new double[windowLength];
+            for (int i = 0; i < windowLength; i++)
+            {
+                inputData[i] = amplitudeData[i + offset];
+            }
+
+            backgroundWorkerFFT.ReportProgress(50);
+            Complex[] outputData = CooleyTukey.Forward(inputData);
+
+            Complex32[] frequencies = new Complex32[length];
+            for (int i = 0; i < outputData.Length; i++)
+            {
+                frequencies[i] = new Complex32((float)outputData[i].Real, (float)outputData[i].Imaginary);
+            }
+
+            e.Result = frequencies;
+
+            //e.Result = CalculateFFT(offset, length);
             backgroundWorkerFFT.ReportProgress(100);
         }
+
+        private void buttonInverseFFT_Click(object sender, EventArgs e)
+        {
+            Fourier.Inverse(frequencyData);
+            amplitudeData = new double[frequencyData.Length];
+
+            for (int i = 0; i < frequencyData.Length; i++)
+            {
+                amplitudeData[i] = frequencyData[i].Real;
+            }
+
+            PopulateTimeDomainGraph(amplitudeData);
+        }
+
+        private void toolStripSplitButton1_ButtonClick(object sender, EventArgs e) => discordJoinToolStripMenuItem_Click(sender, e);
     }
 }
