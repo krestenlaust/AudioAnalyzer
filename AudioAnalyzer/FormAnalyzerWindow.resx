@@ -143,6 +143,9 @@
 </value>
   </data>
   <metadata name="backgroundWorkerFFT.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>564, 17</value>
+    <value>792, 18</value>
+  </metadata>
+  <metadata name="saveFileDialogAudioFile.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>564, 18</value>
   </metadata>
 </root>

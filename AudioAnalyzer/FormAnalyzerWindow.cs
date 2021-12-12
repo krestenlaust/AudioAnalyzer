@@ -14,6 +14,7 @@ using Aud.IO.Algorithms;
 using MathNet.Numerics;
 using MathNet.Numerics.IntegralTransforms;
 using System.Numerics;
+using System.IO;
 
 namespace AudioAnalyzer
 {
@@ -45,26 +46,15 @@ namespace AudioAnalyzer
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            openFileDialogAudioFile.Filter = "Wave filer (*.wav)|*.wav|Alle filer (*.*)|*.*";
-            DialogResult res = openFileDialogAudioFile.ShowDialog();
-
-            if (res != DialogResult.OK)
-            {
-                return;
-            }
-
-            if (!openFileDialogAudioFile.CheckFileExists)
-            {
-                return;
-            }
-
-            LoadAudiofileAndPopulate(openFileDialogAudioFile.FileName);
+            // Håndteres i eventlisteneren
+            openFileDialogAudioFile.ShowDialog();
         }
 
         private void LoadAudiofileAndPopulate(string path)
         {
             editedWaveFile = new WaveFile(path);
             amplitudeData = editedWaveFile.GetDemodulatedAudio();
+            Text = Path.GetFileName(path);
 
             PopulateTimeDomainGraph(amplitudeData);
         }
@@ -247,7 +237,6 @@ namespace AudioAnalyzer
 
         private void backgroundWorkerFFT_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            toolStripProgressBarFFT.Value = e.ProgressPercentage;
             statusStripMain.Update();
         }
 
@@ -277,7 +266,6 @@ namespace AudioAnalyzer
 
         private void backgroundWorkerFFT_DoWork(object sender, DoWorkEventArgs e)
         {
-            backgroundWorkerFFT.ReportProgress(0);
             (int offset, int length) = ((int, int))e.Argument;
 
             int windowLength = FloorPower2(length);
@@ -287,7 +275,6 @@ namespace AudioAnalyzer
                 inputData[i] = amplitudeData[i + offset];
             }
 
-            backgroundWorkerFFT.ReportProgress(50);
             Complex[] outputData = CooleyTukey.Forward(inputData);
 
             Complex32[] frequencies = new Complex32[length];
@@ -299,7 +286,6 @@ namespace AudioAnalyzer
             e.Result = frequencies;
 
             //e.Result = CalculateFFT(offset, length);
-            backgroundWorkerFFT.ReportProgress(100);
         }
 
         private void buttonInverseFFT_Click(object sender, EventArgs e)
@@ -316,5 +302,35 @@ namespace AudioAnalyzer
         }
 
         private void toolStripSplitButton1_ButtonClick(object sender, EventArgs e) => discordJoinToolStripMenuItem_Click(sender, e);
+
+        private void openFileDialogAudioFile_FileOk(object sender, CancelEventArgs e)
+        {
+            if (!openFileDialogAudioFile.CheckFileExists)
+            {
+                return;
+            }
+
+            LoadAudiofileAndPopulate(openFileDialogAudioFile.FileName);
+        }
+
+        private void saveFileDialogAudioFile_FileOk(object sender, CancelEventArgs e)
+        {
+            
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
     }
 }

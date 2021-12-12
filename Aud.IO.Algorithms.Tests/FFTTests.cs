@@ -11,7 +11,7 @@ namespace Aud.IO.Algorithms.Tests
         public void TestCooleyTukey()
         {
             double[] amplitudes = new double[] { 0, 1, 2, 3 };
-            Complex[] output = Aud.IO.Algorithms.CooleyTukey.Forward(amplitudes);
+            Complex[] output = CooleyTukey.Forward(amplitudes);
         }
     }
 }

@@ -37,10 +37,10 @@ namespace AudioAnalyzer
             System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormAnalyzerWindow));
             this.menuStripMain = new System.Windows.Forms.MenuStrip();
-            this.filToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.redigerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.vælgAltToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.selectAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialogAudioFile = new System.Windows.Forms.OpenFileDialog();
             this.tableLayoutPanelMain = new System.Windows.Forms.TableLayoutPanel();
             this.chartFrequencyDomain = new System.Windows.Forms.DataVisualization.Charting.Chart();
@@ -54,9 +54,14 @@ namespace AudioAnalyzer
             this.discordJoinToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.og250ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripProgressBarFFT = new System.Windows.Forms.ToolStripProgressBar();
             this.toolStripStatusLabelSelectedSamples = new System.Windows.Forms.ToolStripStatusLabel();
             this.backgroundWorkerFFT = new System.ComponentModel.BackgroundWorker();
+            this.saveFileDialogAudioFile = new System.Windows.Forms.SaveFileDialog();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStripMain.SuspendLayout();
             this.tableLayoutPanelMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chartFrequencyDomain)).BeginInit();
@@ -70,46 +75,53 @@ namespace AudioAnalyzer
             // 
             this.menuStripMain.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.menuStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.filToolStripMenuItem,
-            this.redigerToolStripMenuItem});
+            this.fileToolStripMenuItem,
+            this.editToolStripMenuItem});
             this.menuStripMain.Location = new System.Drawing.Point(0, 0);
             this.menuStripMain.Name = "menuStripMain";
             this.menuStripMain.Size = new System.Drawing.Size(800, 28);
             this.menuStripMain.TabIndex = 0;
-            this.menuStripMain.Text = "menuStrip1";
+            this.menuStripMain.Text = "menuStripMain";
             // 
-            // filToolStripMenuItem
+            // fileToolStripMenuItem
             // 
-            this.filToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.openToolStripMenuItem});
-            this.filToolStripMenuItem.Name = "filToolStripMenuItem";
-            this.filToolStripMenuItem.Size = new System.Drawing.Size(38, 24);
-            this.filToolStripMenuItem.Text = "Fil";
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.openToolStripMenuItem,
+            this.toolStripSeparator1,
+            this.saveToolStripMenuItem,
+            this.saveAsToolStripMenuItem,
+            this.toolStripSeparator2,
+            this.closeToolStripMenuItem});
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(38, 24);
+            this.fileToolStripMenuItem.Text = "Fil";
             // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(164, 26);
-            this.openToolStripMenuItem.Text = "Åben lydfil";
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.openToolStripMenuItem.Text = "&Åben lydfil...";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
-            // redigerToolStripMenuItem
+            // editToolStripMenuItem
             // 
-            this.redigerToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.vælgAltToolStripMenuItem});
-            this.redigerToolStripMenuItem.Name = "redigerToolStripMenuItem";
-            this.redigerToolStripMenuItem.Size = new System.Drawing.Size(75, 24);
-            this.redigerToolStripMenuItem.Text = "Rediger";
+            this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.selectAllToolStripMenuItem});
+            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(75, 24);
+            this.editToolStripMenuItem.Text = "Rediger";
             // 
-            // vælgAltToolStripMenuItem
+            // selectAllToolStripMenuItem
             // 
-            this.vælgAltToolStripMenuItem.Name = "vælgAltToolStripMenuItem";
-            this.vælgAltToolStripMenuItem.Size = new System.Drawing.Size(146, 26);
-            this.vælgAltToolStripMenuItem.Text = "Vælg alt";
+            this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
+            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.selectAllToolStripMenuItem.Text = "Vælg alt";
             // 
             // openFileDialogAudioFile
             // 
-            this.openFileDialogAudioFile.FileName = "openFileDialog";
+            this.openFileDialogAudioFile.Filter = "Wave filer (*.wav)|*.wav|Alle filer (*.*)|*.*";
+            this.openFileDialogAudioFile.SupportMultiDottedExtensions = true;
+            this.openFileDialogAudioFile.FileOk += new System.ComponentModel.CancelEventHandler(this.openFileDialogAudioFile_FileOk);
             // 
             // tableLayoutPanelMain
             // 
@@ -172,7 +184,6 @@ namespace AudioAnalyzer
             this.chartTimeDomain.Series.Add(series2);
             this.chartTimeDomain.Size = new System.Drawing.Size(622, 192);
             this.chartTimeDomain.TabIndex = 0;
-            this.chartTimeDomain.Text = "chart1";
             this.chartTimeDomain.MouseDown += new System.Windows.Forms.MouseEventHandler(this.chartTimeDomain_MouseDown);
             this.chartTimeDomain.MouseMove += new System.Windows.Forms.MouseEventHandler(this.chartTimeDomain_MouseMove);
             this.chartTimeDomain.MouseUp += new System.Windows.Forms.MouseEventHandler(this.chartTimeDomain_MouseUp);
@@ -202,6 +213,8 @@ namespace AudioAnalyzer
             // 
             // buttonInverseFFT
             // 
+            this.buttonInverseFFT.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonInverseFFT.Location = new System.Drawing.Point(7, 7);
             this.buttonInverseFFT.Name = "buttonInverseFFT";
             this.buttonInverseFFT.Size = new System.Drawing.Size(145, 29);
@@ -225,13 +238,12 @@ namespace AudioAnalyzer
             this.statusStripMain.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripSplitButton1,
-            this.toolStripProgressBarFFT,
             this.toolStripStatusLabelSelectedSamples});
             this.statusStripMain.Location = new System.Drawing.Point(0, 424);
             this.statusStripMain.Name = "statusStripMain";
             this.statusStripMain.Size = new System.Drawing.Size(800, 26);
             this.statusStripMain.TabIndex = 2;
-            this.statusStripMain.Text = "statusStrip1";
+            this.statusStripMain.Text = "statusStripMain";
             // 
             // toolStripSplitButton1
             // 
@@ -268,12 +280,6 @@ namespace AudioAnalyzer
             this.og250ToolStripMenuItem.Text = "440 og 250";
             this.og250ToolStripMenuItem.Click += new System.EventHandler(this.og250ToolStripMenuItem_Click);
             // 
-            // toolStripProgressBarFFT
-            // 
-            this.toolStripProgressBarFFT.Name = "toolStripProgressBarFFT";
-            this.toolStripProgressBarFFT.Size = new System.Drawing.Size(100, 18);
-            this.toolStripProgressBarFFT.ToolTipText = "Hvor langt FFT er nået";
-            // 
             // toolStripStatusLabelSelectedSamples
             // 
             this.toolStripStatusLabelSelectedSamples.Name = "toolStripStatusLabelSelectedSamples";
@@ -281,11 +287,47 @@ namespace AudioAnalyzer
             // 
             // backgroundWorkerFFT
             // 
-            this.backgroundWorkerFFT.WorkerReportsProgress = true;
             this.backgroundWorkerFFT.WorkerSupportsCancellation = true;
             this.backgroundWorkerFFT.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorkerFFT_DoWork);
             this.backgroundWorkerFFT.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorkerFFT_ProgressChanged);
             this.backgroundWorkerFFT.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorkerFFT_RunWorkerCompleted);
+            // 
+            // saveFileDialogAudioFile
+            // 
+            this.saveFileDialogAudioFile.DefaultExt = "wav";
+            this.saveFileDialogAudioFile.Filter = "Wave filer|*.wav";
+            this.saveFileDialogAudioFile.FileOk += new System.ComponentModel.CancelEventHandler(this.saveFileDialogAudioFile_FileOk);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(221, 6);
+            // 
+            // saveToolStripMenuItem
+            // 
+            this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.saveToolStripMenuItem.Text = "&Gem";
+            this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
+            // 
+            // saveAsToolStripMenuItem
+            // 
+            this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.saveAsToolStripMenuItem.Text = "Gem s&om...";
+            this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(221, 6);
+            // 
+            // closeToolStripMenuItem
+            // 
+            this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.closeToolStripMenuItem.Text = "Luk";
+            this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
             // 
             // FormAnalyzerWindow
             // 
@@ -316,7 +358,7 @@ namespace AudioAnalyzer
         #endregion
 
         private System.Windows.Forms.MenuStrip menuStripMain;
-        private System.Windows.Forms.ToolStripMenuItem filToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
         private System.Windows.Forms.OpenFileDialog openFileDialogAudioFile;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanelMain;
@@ -327,15 +369,20 @@ namespace AudioAnalyzer
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.StatusStrip statusStripMain;
         private System.ComponentModel.BackgroundWorker backgroundWorkerFFT;
-        private System.Windows.Forms.ToolStripMenuItem redigerToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem vælgAltToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem selectAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelSelectedSamples;
         private System.Windows.Forms.ToolStripSplitButton toolStripSplitButton1;
         private System.Windows.Forms.ToolStripMenuItem discordJoinToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
         private System.Windows.Forms.ToolStripMenuItem og250ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripProgressBar toolStripProgressBarFFT;
         private System.Windows.Forms.Button buttonInverseFFT;
+        private System.Windows.Forms.SaveFileDialog saveFileDialogAudioFile;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
     }
 }
 
