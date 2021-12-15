@@ -1,20 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
+using System.Media;
+using System.Numerics;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
-using Aud.IO;
-using Aud.IO.Formats;
-using Aud.IO.Algorithms;
 using MathNet.Numerics;
 using MathNet.Numerics.IntegralTransforms;
-using System.Numerics;
-using System.IO;
+using Aud.IO.Algorithms;
+using Aud.IO.Formats;
 
 namespace AudioAnalyzer
 {
@@ -22,17 +17,16 @@ namespace AudioAnalyzer
     {
         private const int MinWindowSamples = 500;
 
-        //private Point mouseDown;
-        /// <summary>
-        /// Markørens position da et tryk *blev startet* (onmousedown).
-        /// Er null, når det første tryk fandt sted før 0 på x-aksen.
-        /// </summary>
-        private int? mouseDownPixelX;
-        private int selectedRangeIndexStart;
-        private int selectedRangeIndexEnd;
         private WaveFile editedWaveFile;
-        private double[] amplitudeData;
-        private Complex32[] frequencyData;
+        private double[] loadedAmplitudeData;
+        private Complex[] loadedFrequencyData;
+        private ChartSelectionHelper timeDomain, frequencyDomain;
+        /// <summary>
+        /// Gemmer den sti der blev gemt til senest,
+        /// er null når filen ikke er gemt før.
+        /// </summary>
+        private string lastSavedPath = null;
+        private SoundPlayer soundPlayer;
 
         public FormAnalyzerWindow()
         {
@@ -41,7 +35,29 @@ namespace AudioAnalyzer
 
         private void FormAnalyzerWindow_Load(object sender, EventArgs e)
         {
-            
+            timeDomain = new ChartSelectionHelper(chartTimeDomain);
+            timeDomain.OnUpdatedSelection += TimeDomain_OnUpdatedSelection;
+
+            frequencyDomain = new ChartSelectionHelper(chartFrequencyDomain);
+        }
+
+        private void UpdateStatusStrip(string msg)
+        {
+            toolStripStatusLabelSelectedSamples.Text = msg;
+            statusStripMain.Update();
+        }
+
+        private void TimeDomain_OnUpdatedSelection()
+        {
+            int rangeLength = (int)(timeDomain.SelectionLength * editedWaveFile.SampleRate);
+            if (rangeLength >= MinWindowSamples)
+            {
+                UpdateStatusStrip($"Du har markeret {rangeLength} datapunkter");
+            }
+            else
+            {
+                UpdateStatusStrip($"Du har markeret {rangeLength}/{MinWindowSamples} datapunkter");
+            }
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -53,18 +69,18 @@ namespace AudioAnalyzer
         private void LoadAudiofileAndPopulate(string path)
         {
             editedWaveFile = new WaveFile(path);
-            amplitudeData = editedWaveFile.GetDemodulatedAudio();
+            loadedAmplitudeData = editedWaveFile.GetDemodulatedAudio();
             Text = Path.GetFileName(path);
+            UpdateStatusStrip($"Loadede lydfil på længde: {editedWaveFile.AudioDuration:F2} sekunder");
 
-            PopulateTimeDomainGraph(amplitudeData);
+            PopulateTimeDomainGraph(loadedAmplitudeData);
         }
 
         private void PopulateTimeDomainGraph(double[] analogAmplitude)
         {
             chartTimeDomain.Series[0].Points.Clear();
+            timeDomain.Deselect();
 
-            //float chartPixelWidth = chartTimeDomain.ChartAreas[0].InnerPlotPosition.Width / 100 * chartTimeDomain.Size.Width;
-            //int interval = (int)(amplitudeData.Length / (chartPixelWidth / PixelsPerDisplayPoint));
             int interval = 1;
 
             for (int i = 0; i < analogAmplitude.Length; i++)
@@ -74,29 +90,36 @@ namespace AudioAnalyzer
                     continue;
                 }
 
-                double xValue = (double)i / editedWaveFile.WaveData.Subchunk1.SampleRate;
+                double xValue = (double)i / editedWaveFile.SampleRate;
                 chartTimeDomain.Series[0].Points.AddXY(xValue, analogAmplitude[i]);
             }
         }
 
-        private Complex32[] CalculateFFT(int offset, int length)
+        private Complex[] CalculateFFTLibrary(int offset, int length)
         {
             Complex32[] frequencies = new Complex32[length];
             for (int i = 0; i < length; i++)
             {
-                frequencies[i] = new Complex32((float)amplitudeData[i + offset], 0);
+                frequencies[i] = new Complex32((float)loadedAmplitudeData[i + offset], 0);
             }
 
             Fourier.Forward(frequencies);
 
-            return frequencies;
+            // Omdan til Complex array i stedet for Complex32
+            Complex[] frequencies2 = new Complex[length];
+            for (int i = 0; i < length; i++)
+            {
+                frequencies2[i] = new Complex(frequencies[i].Real, frequencies[i].Imaginary);
+            }
+
+            return frequencies2;
         }
 
-        private void PopulateFrequencyDomainGraph(Complex32[] frequencyBins)
+        private void PopulateFrequencyDomainGraph(Complex[] frequencyBins)
         {
             chartFrequencyDomain.Series[0].Points.Clear();
 
-            float frequencyBinSize = (float)editedWaveFile.WaveData.Subchunk1.SampleRate / frequencyBins.Length;
+            float frequencyBinSize = (float)editedWaveFile.SampleRate / frequencyBins.Length;
 
             for (int i = 0; i < frequencyBins.Length / 2; i++)
             {
@@ -105,119 +128,6 @@ namespace AudioAnalyzer
                     frequencyBins[i].Magnitude
                     );
             }
-        }
-
-        private void chartTimeDomain_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.Button != MouseButtons.Left)
-            {
-                return;
-            }
-
-            Axis ax = chartTimeDomain.ChartAreas[0].AxisX;
-            double positionX = ax.PixelPositionToValue(e.Location.X);
-
-            if (positionX < 0)
-            {
-                mouseDownPixelX = null;
-            }
-            else
-            {
-                mouseDownPixelX = e.Location.X;
-            }
-        }
-
-        private void chartTimeDomain_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (e.Button != MouseButtons.Left || editedWaveFile is null)
-            {
-                return;
-            }
-
-            Axis ax = chartTimeDomain.ChartAreas[0].AxisX;
-
-            if (mouseDownPixelX is null)
-            {
-                double positionX = ax.PixelPositionToValue(e.Location.X);
-
-                if (positionX < 0)
-                {
-                    return;
-                }
-
-                mouseDownPixelX = e.Location.X;
-            }
-
-            if (e.Location.X < 0)
-            {
-                return;
-            }
-            
-            double rangeStartX = ax.PixelPositionToValue(Math.Min(mouseDownPixelX.Value, e.Location.X));
-            double rangeEndX = ax.PixelPositionToValue(Math.Max(mouseDownPixelX.Value, e.Location.X));
-
-            selectedRangeIndexStart = (int)(rangeStartX * editedWaveFile.WaveData.Subchunk1.SampleRate);
-            selectedRangeIndexEnd = (int)(rangeEndX * editedWaveFile.WaveData.Subchunk1.SampleRate);
-
-            int rangeLength = selectedRangeIndexEnd - selectedRangeIndexStart;
-            if (rangeLength >= MinWindowSamples)
-            {
-                toolStripStatusLabelSelectedSamples.Text = $"Du har markeret {rangeLength} datapunkter";
-            }
-            else
-            {
-                toolStripStatusLabelSelectedSamples.Text = $"Du har markeret {rangeLength}/{MinWindowSamples} datapunkter";
-            }
-
-            chartTimeDomain.Refresh();
-
-            using (Graphics g = chartTimeDomain.CreateGraphics())
-                g.DrawLine(Pens.Black, mouseDownPixelX.Value, 0, mouseDownPixelX.Value, chartTimeDomain.Height);
-
-            using (Graphics g = chartTimeDomain.CreateGraphics())
-                g.DrawLine(Pens.Black, e.Location.X, 0, e.Location.X, chartTimeDomain.Height);
-        }
-
-        private void chartTimeDomain_MouseUp(object sender, MouseEventArgs e)
-        {
-            if (e.Button != MouseButtons.Left || editedWaveFile is null)
-            {
-                return;
-            }
-
-            Axis ax = chartTimeDomain.ChartAreas[0].AxisX;
-
-            double rangeStartX = ax.PixelPositionToValue(Math.Min(mouseDownPixelX.Value, e.Location.X));
-            double rangeEndX = ax.PixelPositionToValue(Math.Max(mouseDownPixelX.Value, e.Location.X));
-
-            foreach (DataPoint dp in chartTimeDomain.Series[0].Points)
-            {
-                if (dp.XValue < rangeStartX)
-                {
-                    continue;
-                }
-
-                if (dp.XValue > rangeEndX)
-                {
-                    continue;
-                }
-            }
-
-            foreach (var datapoint in chartTimeDomain.Series[0].Points)
-            {
-                datapoint.Color = datapoint.XValue >= rangeStartX && datapoint.XValue < rangeEndX
-                    ? Color.Red : Color.Blue;
-            }
-
-            int rangeLength = selectedRangeIndexEnd - selectedRangeIndexStart;
-            if (rangeLength >= MinWindowSamples)
-            {
-                backgroundWorkerFFT.CancelAsync();
-                backgroundWorkerFFT.RunWorkerAsync((selectedRangeIndexStart, rangeLength));
-            }
-
-            toolStripStatusLabelSelectedSamples.Text = $"Du markede {rangeLength} datapunkter";
-            statusStripMain.Update();
         }
 
         private void og250ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -244,15 +154,16 @@ namespace AudioAnalyzer
         {
             if (!(e.Error is null))
             {
-                // throw
+                // der er sket en fejl
+                throw e.Error;
             }
             else if (e.Cancelled)
             {
                 return;
             }
 
-            frequencyData = (Complex32[])e.Result;
-            PopulateFrequencyDomainGraph(frequencyData);
+            loadedFrequencyData = (Complex[])e.Result;
+            PopulateFrequencyDomainGraph(loadedFrequencyData);
         }
 
         public static int FloorPower2(int x)
@@ -270,35 +181,36 @@ namespace AudioAnalyzer
 
             int windowLength = FloorPower2(length);
             double[] inputData = new double[windowLength];
+
             for (int i = 0; i < windowLength; i++)
             {
-                inputData[i] = amplitudeData[i + offset];
+                inputData[i] = loadedAmplitudeData[i + offset];
             }
 
             Complex[] outputData = CooleyTukey.Forward(inputData);
 
-            Complex32[] frequencies = new Complex32[length];
-            for (int i = 0; i < outputData.Length; i++)
-            {
-                frequencies[i] = new Complex32((float)outputData[i].Real, (float)outputData[i].Imaginary);
-            }
-
-            e.Result = frequencies;
-
+            e.Result = outputData;
             //e.Result = CalculateFFT(offset, length);
         }
 
         private void buttonInverseFFT_Click(object sender, EventArgs e)
         {
-            Fourier.Inverse(frequencyData);
-            amplitudeData = new double[frequencyData.Length];
-
-            for (int i = 0; i < frequencyData.Length; i++)
+            if (loadedFrequencyData is null)
             {
-                amplitudeData[i] = frequencyData[i].Real;
+                UpdateStatusStrip("Ingen FFT graf at konvertere");
+                return;
             }
 
-            PopulateTimeDomainGraph(amplitudeData);
+            Fourier.Inverse(loadedFrequencyData);
+            loadedAmplitudeData = new double[loadedFrequencyData.Length];
+
+            for (int i = 0; i < loadedFrequencyData.Length; i++)
+            {
+                loadedAmplitudeData[i] = loadedFrequencyData[i].Real;
+            }
+
+            editedWaveFile.SetDemodulatedAudio(loadedAmplitudeData);
+            PopulateTimeDomainGraph(loadedAmplitudeData);
         }
 
         private void toolStripSplitButton1_ButtonClick(object sender, EventArgs e) => discordJoinToolStripMenuItem_Click(sender, e);
@@ -313,24 +225,124 @@ namespace AudioAnalyzer
             LoadAudiofileAndPopulate(openFileDialogAudioFile.FileName);
         }
 
+        private void SaveFile(string filePath)
+        {
+            editedWaveFile.WriteAudioFile(filePath);
+            this.Text = filePath;
+        }
+
         private void saveFileDialogAudioFile_FileOk(object sender, CancelEventArgs e)
         {
-            
+            SaveFile(saveFileDialogAudioFile.FileName);
+            lastSavedPath = saveFileDialogAudioFile.FileName;
         }
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (lastSavedPath is null)
+            {
+                saveAsToolStripMenuItem_Click(sender, e);
+                return;
+            }
 
+            SaveFile(lastSavedPath);
         }
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            saveFileDialogAudioFile.ShowDialog();
         }
 
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void PlayAudio()
+        {
+            // Write current audio represented in editedWaveFile.
+            string tempFile = Path.GetTempFileName();
+            editedWaveFile.WriteAudioFile(tempFile);
+
+            // Load temporary file into memory to delete it afterwards.
+            MemoryStream waveFile = new MemoryStream(File.ReadAllBytes(tempFile));
+            File.Delete(tempFile);
+
+            // Play the audio file from memory.
+            soundPlayer = new SoundPlayer(waveFile);
+            soundPlayer.Play();
+        }
+
+        private void FormAnalyzerWindow_KeyUp(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.Space:
+                    PlayAudio();
+                    break;
+                case Keys.S when e.Control:
+                    saveToolStripMenuItem_Click(null, null);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void buttonFFT_Click(object sender, EventArgs e)
+        {
+            if (!timeDomain.Selected)
+            {
+                UpdateStatusStrip("Ingen data markeret");
+                return;
+            }
+
+            int selectionStartIndex = (int)(timeDomain.SelectionStart * editedWaveFile.SampleRate);
+            int selectionLengthIndex = (int)(timeDomain.SelectionLength * editedWaveFile.SampleRate);
+
+            if (selectionLengthIndex < MinWindowSamples)
+            {
+                UpdateStatusStrip($"Ikke nok data markeret, markér mindst {MinWindowSamples} datapunkter");
+                return;
+            }
+
+            backgroundWorkerFFT.CancelAsync();
+            backgroundWorkerFFT.RunWorkerAsync((selectionStartIndex, selectionLengthIndex));
+        }
+
+        private void buttonAudioPlay_Click(object sender, EventArgs e)
+        {
+            PlayAudio();
+        }
+
+        private void buttonAudioStop_Click(object sender, EventArgs e)
+        {
+            soundPlayer?.Stop();
+        }
+
+        private void chartFrequencyDomain_KeyUp(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.Delete when frequencyDomain.Selected:
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void chartTimeDomain_KeyUp(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.Delete when timeDomain.Selected:
+                    
+                    break;
+                case Keys.Space:
+                    PlayAudio();
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

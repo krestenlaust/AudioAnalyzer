@@ -1,15 +1,20 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 using Aud.IO.Exceptions;
 
 namespace Aud.IO.Formats
 {
-    public class WaveFile : AudioFormat
+    public class WaveFile : AudioFile
     {
-        public readonly WaveStructure WaveData;
+        /// <inheritdoc/>
+        public override uint SampleRate => waveData.Subchunk1.SampleRate;
+        /// <inheritdoc/>
+        public override uint BitsPerSample => waveData.Subchunk1.BitsPerSample;
+        /// <inheritdoc/>
+        public override double AudioDuration => (waveData.Subchunk2.Data.Length / waveData.Subchunk1.NumChannels) / SampleRate;
+
+        private WaveStructure waveData;
 
         /// <summary>
         /// Læser og behandler lydfilen.
@@ -109,21 +114,62 @@ namespace Aud.IO.Formats
                 throw new MissingSubchunkException("data");
             }
 
-            WaveData = new WaveStructure(formatSubchunk.Value, dataSubchunk.Value);
+            waveData = new WaveStructure(formatSubchunk.Value, dataSubchunk.Value);
         }
 
         /// <inheritdoc/>
         public override double[] GetDemodulatedAudio()
         {
-            double[] demodulatedAudio = new double[WaveData.Subchunk2.Data.Length];
+            double[] demodulatedAudio = new double[waveData.Subchunk2.Data.Length];
 
-            int sampleIndex = 0;
-            for (int i = 0; i < WaveData.Subchunk2.Data.Length; i++)
+            for (int i = 0; i < waveData.Subchunk2.Data.Length; i++)
             {
-                demodulatedAudio[i] = WaveData.Subchunk2.Data[sampleIndex++] / (double)short.MaxValue;
+                demodulatedAudio[i] = waveData.Subchunk2.Data[i] / (double)short.MaxValue;
             }
 
             return demodulatedAudio;
+        }
+
+        public override void SetDemodulatedAudio(double[] audio)
+        {
+            short[] modulatedAudio = new short[audio.Length];
+
+            for (int i = 0; i < audio.Length; i++)
+            {
+                modulatedAudio[i] = (short)Math.Round(audio[i] * short.MaxValue);
+            }
+
+            waveData = new WaveStructure(waveData.Subchunk1.NumChannels, waveData.Subchunk1.SampleRate, waveData.Subchunk1.BitsPerSample, modulatedAudio);
+        }
+
+        public WaveStructure GetWaveData() => waveData;
+
+        public override void WriteAudioFile(string filePath)
+        {
+            using (FileStream fileStream = File.Create(filePath))
+            {
+                fileStream.Write(BitConverter.GetBytes(waveData.ChunkID), 0, sizeof(uint));
+                fileStream.Write(BitConverter.GetBytes(waveData.ChunkSize), 0, sizeof(uint));
+                fileStream.Write(BitConverter.GetBytes(waveData.Format), 0, sizeof(uint));
+
+                fileStream.Write(BitConverter.GetBytes(waveData.Subchunk1.ID), 0, sizeof(uint));
+                fileStream.Write(BitConverter.GetBytes(waveData.Subchunk1.Size), 0, sizeof(uint));
+                fileStream.Write(BitConverter.GetBytes(waveData.Subchunk1.AudioFormat), 0, sizeof(ushort));
+                fileStream.Write(BitConverter.GetBytes(waveData.Subchunk1.NumChannels), 0, sizeof(ushort));
+                fileStream.Write(BitConverter.GetBytes(waveData.Subchunk1.SampleRate), 0, sizeof(uint));
+                fileStream.Write(BitConverter.GetBytes(waveData.Subchunk1.ByteRate), 0, sizeof(uint));
+                fileStream.Write(BitConverter.GetBytes(waveData.Subchunk1.BlockAlign), 0, sizeof(ushort));
+                fileStream.Write(BitConverter.GetBytes(waveData.Subchunk1.BitsPerSample), 0, sizeof(ushort));
+
+                fileStream.Write(BitConverter.GetBytes(waveData.Subchunk2.ID), 0, sizeof(uint));
+                fileStream.Write(BitConverter.GetBytes(waveData.Subchunk2.Size), 0, sizeof(uint));
+
+                byte[] sdata = new byte[waveData.Subchunk2.Size];
+                Buffer.BlockCopy(waveData.Subchunk2.Data, 0, sdata, 0, waveData.Subchunk2.Data.Length);
+                fileStream.Write(sdata, 0, sdata.Length);
+
+                fileStream.Flush();
+            }
         }
     }
 }

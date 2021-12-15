@@ -34,6 +34,8 @@ namespace Aud.IO.Formats
         // Data sub-chunk
         public readonly DataSubchunk Subchunk2;
 
+        public uint TotalSize => sizeof(uint) + (8 + Subchunk1.Size) + (8 + Subchunk2.Size);
+
         /// <summary>
         /// Opret ny wavefil struktur kun ved hjælp af den data, som der er direkte brug for.
         /// </summary>
@@ -47,12 +49,9 @@ namespace Aud.IO.Formats
             Format = BitConverter.ToUInt32(Encoding.ASCII.GetBytes("WAVE"), 0);
 
             Subchunk1 = new FormatSubchunk(numChannels, sampleRate, bitsPerSample);
-            uint subchunk1Size = Subchunk1.Size;
-
             Subchunk2 = new DataSubchunk(data);
-            uint subchunk2Size = Subchunk2.Size;
 
-            ChunkSize = sizeof(uint) + (sizeof(uint) * 2 + subchunk1Size) + (sizeof(uint) * 2 + subchunk2Size);
+            ChunkSize = sizeof(uint) + (8 + Subchunk1.Size) + (8 + Subchunk2.Size);
         }
 
         public WaveStructure(FormatSubchunk formatSubchunk, DataSubchunk dataSubchunk)
@@ -63,7 +62,7 @@ namespace Aud.IO.Formats
             Subchunk1 = formatSubchunk;
             Subchunk2 = dataSubchunk;
 
-            ChunkSize = 4 + 8 + (sizeof(ushort) * 4 + sizeof(uint) * 2) + 8 + (uint)Subchunk2.Data.Length;
+            ChunkSize = sizeof(uint) + (8 + Subchunk1.Size) + (8 + Subchunk2.Size);
         }
     }
 

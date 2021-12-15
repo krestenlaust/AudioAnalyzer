@@ -15,25 +15,28 @@ namespace AudioMetadataViewer
                 return;
             }
 
-            WaveFile audioFile = new WaveFile(args[0]);
+            //WaveFile audioFile = new WaveFile(args[0]);
+            WaveFile audioFile = new WaveFile(@"C:\Users\kress\AppData\Local\Temp\tmpE4AC - Kopi.wav");
+
+            WaveStructure data = audioFile.GetWaveData();
 
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine($"Chunk ID: {Encoding.ASCII.GetString(BitConverter.GetBytes(audioFile.WaveData.ChunkID))}");
-            sb.AppendLine($"Chunk størrelse: {audioFile.WaveData.ChunkSize}");
-            sb.AppendLine($"Format: {audioFile.WaveData.Format}");
+            sb.AppendLine($"Chunk ID: {Encoding.ASCII.GetString(BitConverter.GetBytes(data.ChunkID))}");
+            sb.AppendLine($"Chunk størrelse: {data.ChunkSize}");
+            sb.AppendLine($"Format: {data.Format}");
             sb.AppendLine("===");
-            sb.AppendLine($"Subchunk ID: {Encoding.ASCII.GetString(BitConverter.GetBytes(audioFile.WaveData.Subchunk1.ID))}");
-            sb.AppendLine($"Størrelse: {audioFile.WaveData.Subchunk1.Size} bytes");
-            sb.AppendLine($"Lyd format: {audioFile.WaveData.Subchunk1.AudioFormat}");
-            sb.AppendLine($"Antal lydkanaler (mono/stereo): {audioFile.WaveData.Subchunk1.NumChannels}");
+            sb.AppendLine($"Subchunk ID: {Encoding.ASCII.GetString(BitConverter.GetBytes(data.Subchunk1.ID))}");
+            sb.AppendLine($"Størrelse: {data.Subchunk1.Size} bytes");
+            sb.AppendLine($"Lyd format: {data.Subchunk1.AudioFormat}");
+            sb.AppendLine($"Antal lydkanaler (mono/stereo): {data.Subchunk1.NumChannels}");
             sb.AppendLine();
-            sb.AppendLine($"Indsamlingsfrekvens: {audioFile.WaveData.Subchunk1.SampleRate} Hz");
-            sb.AppendLine($"Data punkt størrelse: {audioFile.WaveData.Subchunk1.BitsPerSample} bits");
-            sb.AppendLine($"Blockalign, data punkt størrelse: {audioFile.WaveData.Subchunk1.BlockAlign}");
-            sb.AppendLine($"Bytes i sekundet(?): {audioFile.WaveData.Subchunk1.ByteRate}");
+            sb.AppendLine($"Indsamlingsfrekvens: {data.Subchunk1.SampleRate} Hz");
+            sb.AppendLine($"Data punkt størrelse: {data.Subchunk1.BitsPerSample} bits");
+            sb.AppendLine($"Blockalign, data punkt størrelse: {data.Subchunk1.BlockAlign}");
+            sb.AppendLine($"Bytes i sekundet(?): {data.Subchunk1.ByteRate}");
             sb.AppendLine("---");
-            sb.AppendLine($"Subchunk ID: {Encoding.ASCII.GetString(BitConverter.GetBytes(audioFile.WaveData.Subchunk2.ID))}");
-            sb.AppendLine($"Størrelse: {audioFile.WaveData.Subchunk2.Size} bytes");
+            sb.AppendLine($"Subchunk ID: {Encoding.ASCII.GetString(BitConverter.GetBytes(data.Subchunk2.ID))}");
+            sb.AppendLine($"Størrelse: {data.Subchunk2.Size} bytes");
 
             Console.WriteLine(sb.ToString());
         }

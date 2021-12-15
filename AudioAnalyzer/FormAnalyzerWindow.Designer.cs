@@ -39,16 +39,23 @@ namespace AudioAnalyzer
             this.menuStripMain = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.selectAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialogAudioFile = new System.Windows.Forms.OpenFileDialog();
             this.tableLayoutPanelMain = new System.Windows.Forms.TableLayoutPanel();
             this.chartFrequencyDomain = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.chartTimeDomain = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.groupBoxExtraControls = new System.Windows.Forms.GroupBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.buttonAudioStop = new System.Windows.Forms.Button();
+            this.buttonAudioPlay = new System.Windows.Forms.Button();
+            this.buttonFFT = new System.Windows.Forms.Button();
             this.buttonInverseFFT = new System.Windows.Forms.Button();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
             this.statusStripMain = new System.Windows.Forms.StatusStrip();
             this.toolStripSplitButton1 = new System.Windows.Forms.ToolStripSplitButton();
             this.discordJoinToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -57,17 +64,12 @@ namespace AudioAnalyzer
             this.toolStripStatusLabelSelectedSamples = new System.Windows.Forms.ToolStripStatusLabel();
             this.backgroundWorkerFFT = new System.ComponentModel.BackgroundWorker();
             this.saveFileDialogAudioFile = new System.Windows.Forms.SaveFileDialog();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStripMain.SuspendLayout();
             this.tableLayoutPanelMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chartFrequencyDomain)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chartTimeDomain)).BeginInit();
-            this.tabControl1.SuspendLayout();
-            this.tabPage1.SuspendLayout();
+            this.groupBoxExtraControls.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.statusStripMain.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -99,9 +101,40 @@ namespace AudioAnalyzer
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(173, 26);
             this.openToolStripMenuItem.Text = "&Åben lydfil...";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(170, 6);
+            // 
+            // saveToolStripMenuItem
+            // 
+            this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(173, 26);
+            this.saveToolStripMenuItem.Text = "&Gem";
+            this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
+            // 
+            // saveAsToolStripMenuItem
+            // 
+            this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(173, 26);
+            this.saveAsToolStripMenuItem.Text = "Gem s&om...";
+            this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(170, 6);
+            // 
+            // closeToolStripMenuItem
+            // 
+            this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(173, 26);
+            this.closeToolStripMenuItem.Text = "Luk";
+            this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
             // 
             // editToolStripMenuItem
             // 
@@ -114,7 +147,7 @@ namespace AudioAnalyzer
             // selectAllToolStripMenuItem
             // 
             this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
-            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(146, 26);
             this.selectAllToolStripMenuItem.Text = "Vælg alt";
             // 
             // openFileDialogAudioFile
@@ -128,10 +161,9 @@ namespace AudioAnalyzer
             this.tableLayoutPanelMain.ColumnCount = 2;
             this.tableLayoutPanelMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanelMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 172F));
-            this.tableLayoutPanelMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanelMain.Controls.Add(this.chartFrequencyDomain, 0, 1);
             this.tableLayoutPanelMain.Controls.Add(this.chartTimeDomain, 0, 0);
-            this.tableLayoutPanelMain.Controls.Add(this.tabControl1, 1, 0);
+            this.tableLayoutPanelMain.Controls.Add(this.groupBoxExtraControls, 1, 0);
             this.tableLayoutPanelMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanelMain.Location = new System.Drawing.Point(0, 28);
             this.tableLayoutPanelMain.Name = "tableLayoutPanelMain";
@@ -158,6 +190,7 @@ namespace AudioAnalyzer
             this.chartFrequencyDomain.Series.Add(series1);
             this.chartFrequencyDomain.Size = new System.Drawing.Size(622, 192);
             this.chartFrequencyDomain.TabIndex = 1;
+            this.chartFrequencyDomain.KeyUp += new System.Windows.Forms.KeyEventHandler(this.chartFrequencyDomain_KeyUp);
             // 
             // chartTimeDomain
             // 
@@ -184,54 +217,78 @@ namespace AudioAnalyzer
             this.chartTimeDomain.Series.Add(series2);
             this.chartTimeDomain.Size = new System.Drawing.Size(622, 192);
             this.chartTimeDomain.TabIndex = 0;
-            this.chartTimeDomain.MouseDown += new System.Windows.Forms.MouseEventHandler(this.chartTimeDomain_MouseDown);
-            this.chartTimeDomain.MouseMove += new System.Windows.Forms.MouseEventHandler(this.chartTimeDomain_MouseMove);
-            this.chartTimeDomain.MouseUp += new System.Windows.Forms.MouseEventHandler(this.chartTimeDomain_MouseUp);
+            this.chartTimeDomain.KeyUp += new System.Windows.Forms.KeyEventHandler(this.chartTimeDomain_KeyUp);
             // 
-            // tabControl1
+            // groupBoxExtraControls
             // 
-            this.tabControl1.Controls.Add(this.tabPage1);
-            this.tabControl1.Controls.Add(this.tabPage2);
-            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl1.Location = new System.Drawing.Point(631, 3);
-            this.tabControl1.Name = "tabControl1";
-            this.tableLayoutPanelMain.SetRowSpan(this.tabControl1, 2);
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(166, 390);
-            this.tabControl1.TabIndex = 3;
+            this.groupBoxExtraControls.Controls.Add(this.groupBox1);
+            this.groupBoxExtraControls.Controls.Add(this.buttonFFT);
+            this.groupBoxExtraControls.Controls.Add(this.buttonInverseFFT);
+            this.groupBoxExtraControls.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBoxExtraControls.Location = new System.Drawing.Point(631, 3);
+            this.groupBoxExtraControls.Name = "groupBoxExtraControls";
+            this.tableLayoutPanelMain.SetRowSpan(this.groupBoxExtraControls, 2);
+            this.groupBoxExtraControls.Size = new System.Drawing.Size(166, 390);
+            this.groupBoxExtraControls.TabIndex = 5;
+            this.groupBoxExtraControls.TabStop = false;
+            this.groupBoxExtraControls.Text = "Ekstra indstillinger";
             // 
-            // tabPage1
+            // groupBox1
             // 
-            this.tabPage1.Controls.Add(this.buttonInverseFFT);
-            this.tabPage1.Location = new System.Drawing.Point(4, 25);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(158, 361);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "tabPage1";
-            this.tabPage1.UseVisualStyleBackColor = true;
+            this.groupBox1.Controls.Add(this.buttonAudioStop);
+            this.groupBox1.Controls.Add(this.buttonAudioPlay);
+            this.groupBox1.Location = new System.Drawing.Point(6, 91);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(151, 80);
+            this.groupBox1.TabIndex = 6;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Lydstyring";
+            // 
+            // buttonAudioStop
+            // 
+            this.buttonAudioStop.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.buttonAudioStop.Location = new System.Drawing.Point(3, 49);
+            this.buttonAudioStop.Name = "buttonAudioStop";
+            this.buttonAudioStop.Size = new System.Drawing.Size(145, 28);
+            this.buttonAudioStop.TabIndex = 1;
+            this.buttonAudioStop.Text = "Stop";
+            this.buttonAudioStop.UseVisualStyleBackColor = true;
+            this.buttonAudioStop.Click += new System.EventHandler(this.buttonAudioStop_Click);
+            // 
+            // buttonAudioPlay
+            // 
+            this.buttonAudioPlay.Dock = System.Windows.Forms.DockStyle.Top;
+            this.buttonAudioPlay.Location = new System.Drawing.Point(3, 18);
+            this.buttonAudioPlay.Name = "buttonAudioPlay";
+            this.buttonAudioPlay.Size = new System.Drawing.Size(145, 29);
+            this.buttonAudioPlay.TabIndex = 0;
+            this.buttonAudioPlay.Text = "Afspil";
+            this.buttonAudioPlay.UseVisualStyleBackColor = true;
+            this.buttonAudioPlay.Click += new System.EventHandler(this.buttonAudioPlay_Click);
+            // 
+            // buttonFFT
+            // 
+            this.buttonFFT.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonFFT.Location = new System.Drawing.Point(6, 21);
+            this.buttonFFT.Name = "buttonFFT";
+            this.buttonFFT.Size = new System.Drawing.Size(154, 29);
+            this.buttonFFT.TabIndex = 5;
+            this.buttonFFT.Text = "Amplitude til FFT";
+            this.buttonFFT.UseVisualStyleBackColor = true;
+            this.buttonFFT.Click += new System.EventHandler(this.buttonFFT_Click);
             // 
             // buttonInverseFFT
             // 
             this.buttonInverseFFT.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonInverseFFT.Location = new System.Drawing.Point(7, 7);
+            this.buttonInverseFFT.Location = new System.Drawing.Point(6, 56);
             this.buttonInverseFFT.Name = "buttonInverseFFT";
-            this.buttonInverseFFT.Size = new System.Drawing.Size(145, 29);
+            this.buttonInverseFFT.Size = new System.Drawing.Size(154, 29);
             this.buttonInverseFFT.TabIndex = 4;
             this.buttonInverseFFT.Text = "FFT til amplitude";
             this.buttonInverseFFT.UseVisualStyleBackColor = true;
             this.buttonInverseFFT.Click += new System.EventHandler(this.buttonInverseFFT_Click);
-            // 
-            // tabPage2
-            // 
-            this.tabPage2.Location = new System.Drawing.Point(4, 25);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(158, 361);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "tabPage2";
-            this.tabPage2.UseVisualStyleBackColor = true;
             // 
             // statusStripMain
             // 
@@ -298,37 +355,6 @@ namespace AudioAnalyzer
             this.saveFileDialogAudioFile.Filter = "Wave filer|*.wav";
             this.saveFileDialogAudioFile.FileOk += new System.ComponentModel.CancelEventHandler(this.saveFileDialogAudioFile_FileOk);
             // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(221, 6);
-            // 
-            // saveToolStripMenuItem
-            // 
-            this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.saveToolStripMenuItem.Text = "&Gem";
-            this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
-            // 
-            // saveAsToolStripMenuItem
-            // 
-            this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.saveAsToolStripMenuItem.Text = "Gem s&om...";
-            this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
-            // 
-            // toolStripSeparator2
-            // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(221, 6);
-            // 
-            // closeToolStripMenuItem
-            // 
-            this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.closeToolStripMenuItem.Text = "Luk";
-            this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
-            // 
             // FormAnalyzerWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -337,17 +363,19 @@ namespace AudioAnalyzer
             this.Controls.Add(this.tableLayoutPanelMain);
             this.Controls.Add(this.menuStripMain);
             this.Controls.Add(this.statusStripMain);
+            this.KeyPreview = true;
             this.MainMenuStrip = this.menuStripMain;
             this.Name = "FormAnalyzerWindow";
             this.Text = "Lyd analyse værktøj";
             this.Load += new System.EventHandler(this.FormAnalyzerWindow_Load);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.FormAnalyzerWindow_KeyUp);
             this.menuStripMain.ResumeLayout(false);
             this.menuStripMain.PerformLayout();
             this.tableLayoutPanelMain.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.chartFrequencyDomain)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.chartTimeDomain)).EndInit();
-            this.tabControl1.ResumeLayout(false);
-            this.tabPage1.ResumeLayout(false);
+            this.groupBoxExtraControls.ResumeLayout(false);
+            this.groupBox1.ResumeLayout(false);
             this.statusStripMain.ResumeLayout(false);
             this.statusStripMain.PerformLayout();
             this.ResumeLayout(false);
@@ -364,9 +392,6 @@ namespace AudioAnalyzer
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanelMain;
         private System.Windows.Forms.DataVisualization.Charting.Chart chartTimeDomain;
         private System.Windows.Forms.DataVisualization.Charting.Chart chartFrequencyDomain;
-        private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.StatusStrip statusStripMain;
         private System.ComponentModel.BackgroundWorker backgroundWorkerFFT;
         private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
@@ -376,13 +401,18 @@ namespace AudioAnalyzer
         private System.Windows.Forms.ToolStripMenuItem discordJoinToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
         private System.Windows.Forms.ToolStripMenuItem og250ToolStripMenuItem;
-        private System.Windows.Forms.Button buttonInverseFFT;
         private System.Windows.Forms.SaveFileDialog saveFileDialogAudioFile;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
+        private System.Windows.Forms.GroupBox groupBoxExtraControls;
+        private System.Windows.Forms.Button buttonInverseFFT;
+        private System.Windows.Forms.Button buttonFFT;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Button buttonAudioStop;
+        private System.Windows.Forms.Button buttonAudioPlay;
     }
 }
 
