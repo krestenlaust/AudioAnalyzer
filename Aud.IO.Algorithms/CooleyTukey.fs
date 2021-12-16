@@ -44,7 +44,7 @@ module CooleyTukey =
             let oddArray = forwardComputations (odd |> Array.ofList)
 
             for k in 0..N/2-1 do
-                let w = exp(Complex(0.0, 2.0 * Math.PI * float k / float N))
+                let w = exp(Complex(0.0, (2.0 * Math.PI * float k) / float N))
                 frequency.[k] <- (evenArray.[k] + w * oddArray.[k]) / Complex(double N, 0.0)
                 frequency.[N/2 + k] <- (evenArray.[k] - w * oddArray.[k]) / Complex(double N, 0.0)
 

@@ -29,7 +29,8 @@ namespace AudioAnalyzer
         public double SelectionStart { get; private set; }
         public double SelectionLength { get; private set; }
 
-        private int maxXDrag => chart.Width - 1;
+        private int minXDrag => (int)chart.ChartAreas[0].AxisX.ValueToPixelPosition(chart.ChartAreas[0].AxisX.Minimum);
+        private int maxXDrag => (int)chart.ChartAreas[0].AxisX.ValueToPixelPosition(chart.ChartAreas[0].AxisX.Maximum); //chart.Width - 1;
 
         /// <summary>
         /// Bliver kaldt hver gang musen bevæger sig og er i gang med at markere.
@@ -84,19 +85,6 @@ namespace AudioAnalyzer
             }
 
             Deselect();
-
-            /*
-            Axis ax = chart.ChartAreas[0].AxisX;
-            double positionX = ax.PixelPositionToValue(e.Location.X);
-
-            if (positionX < 0)
-            {
-                startPixelX = null;
-            }
-            else
-            {
-                startPixelX = e.Location.X;
-            }*/
         }
 
         private void ChartMouseUp(MouseEventArgs e)
@@ -106,6 +94,14 @@ namespace AudioAnalyzer
                 return;
             }
 
+            // Ingenting er markeret, fjern markeringsstreger.
+            if (SelectionLength == 0)
+            {
+                Deselect();
+                return;
+            }
+
+            // Mindre end mindste markering, er markeret, fjern markeringsstreger.
             if (startPixelX is null || Math.Abs(startPixelX.Value - e.Location.X) <= DeselectionThreshhold)
             {
                 Deselect();
@@ -141,9 +137,9 @@ namespace AudioAnalyzer
             int newPixelX = e.Location.X;
             
             // Trækker udenfor grafen, ignorer indtil de er indenfor.
-            if (newPixelX < 0)
+            if (newPixelX < minXDrag)
             {
-                newPixelX = 0;
+                newPixelX = minXDrag;
             }
             else if (newPixelX > maxXDrag)
             {
@@ -159,8 +155,8 @@ namespace AudioAnalyzer
                 startPixelX = newPixelX;
             }
 
-            double rangeStartX = ax.PixelPositionToValue(Math.Min(startPixelX.Value, newPixelX));
-            double rangeEndX = ax.PixelPositionToValue(Math.Max(startPixelX.Value, newPixelX));
+            double rangeStartX = Math.Max(0, ax.PixelPositionToValue(Math.Min(startPixelX.Value, newPixelX)));
+            double rangeEndX = Math.Max(0, ax.PixelPositionToValue(Math.Max(startPixelX.Value, newPixelX)));
             SelectionStart = rangeStartX;
             SelectionLength = rangeEndX - rangeStartX;
             OnUpdatedSelection?.Invoke();

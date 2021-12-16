@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
-using Aud.IO;
 using Aud.IO.Formats;
 
 namespace AudioMetadataViewer
@@ -15,8 +13,7 @@ namespace AudioMetadataViewer
                 return;
             }
 
-            //WaveFile audioFile = new WaveFile(args[0]);
-            WaveFile audioFile = new WaveFile(@"C:\Users\kress\AppData\Local\Temp\tmpE4AC - Kopi.wav");
+            WaveFile audioFile = new WaveFile(args[0]);
 
             WaveStructure data = audioFile.GetWaveData();
 

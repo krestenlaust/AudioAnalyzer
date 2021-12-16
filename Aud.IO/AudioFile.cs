@@ -11,6 +11,10 @@
         /// </summary>
         public abstract uint SampleRate { get; }
         /// <summary>
+        /// The amount of samples, (including all channels).
+        /// </summary>
+        public abstract int Samples { get; }
+        /// <summary>
         /// The amount of bits that store a single sample.
         /// </summary>
         public abstract uint BitsPerSample { get; }

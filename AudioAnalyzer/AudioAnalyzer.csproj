@@ -56,13 +56,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FFTAlgorithms.cs" />
     <Compile Include="ChartSelectionHelper.cs" />
+    <Compile Include="FFTs\HomemadeFFT.cs" />
+    <Compile Include="FFTs\RobustFFT.cs" />
     <Compile Include="FormAnalyzerWindow.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FormAnalyzerWindow.Designer.cs">
       <DependentUpon>FormAnalyzerWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="IAlgorithmFFT.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="FormAnalyzerWindow.resx">

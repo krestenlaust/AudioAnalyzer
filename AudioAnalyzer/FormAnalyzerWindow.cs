@@ -6,9 +6,6 @@ using System.Media;
 using System.Numerics;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
-using MathNet.Numerics;
-using MathNet.Numerics.IntegralTransforms;
-using Aud.IO.Algorithms;
 using Aud.IO.Formats;
 
 namespace AudioAnalyzer
@@ -27,6 +24,7 @@ namespace AudioAnalyzer
         /// </summary>
         private string lastSavedPath = null;
         private SoundPlayer soundPlayer;
+        private IAlgorithmFFT selectedFFTAlgorithm;
 
         public FormAnalyzerWindow()
         {
@@ -39,6 +37,8 @@ namespace AudioAnalyzer
             timeDomain.OnUpdatedSelection += TimeDomain_OnUpdatedSelection;
 
             frequencyDomain = new ChartSelectionHelper(chartFrequencyDomain);
+
+            selectedFFTAlgorithm = FFTAlgorithms.HomemadeFFT;
         }
 
         private void UpdateStatusStrip(string msg)
@@ -47,33 +47,20 @@ namespace AudioAnalyzer
             statusStripMain.Update();
         }
 
-        private void TimeDomain_OnUpdatedSelection()
-        {
-            int rangeLength = (int)(timeDomain.SelectionLength * editedWaveFile.SampleRate);
-            if (rangeLength >= MinWindowSamples)
-            {
-                UpdateStatusStrip($"Du har markeret {rangeLength} datapunkter");
-            }
-            else
-            {
-                UpdateStatusStrip($"Du har markeret {rangeLength}/{MinWindowSamples} datapunkter");
-            }
-        }
-
-        private void openToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            // Håndteres i eventlisteneren
-            openFileDialogAudioFile.ShowDialog();
-        }
-
         private void LoadAudiofileAndPopulate(string path)
         {
             editedWaveFile = new WaveFile(path);
             loadedAmplitudeData = editedWaveFile.GetDemodulatedAudio();
             Text = Path.GetFileName(path);
-            UpdateStatusStrip($"Loadede lydfil på længde: {editedWaveFile.AudioDuration:F2} sekunder");
+            UpdateStatusStrip($"Indlæste lydfil på længde: {editedWaveFile.AudioDuration:F2} sekunder");
 
             PopulateTimeDomainGraph(loadedAmplitudeData);
+        }
+
+        private void SaveFile(string filePath)
+        {
+            editedWaveFile.WriteAudioFile(filePath);
+            this.Text = filePath;
         }
 
         private void PopulateTimeDomainGraph(double[] analogAmplitude)
@@ -95,26 +82,6 @@ namespace AudioAnalyzer
             }
         }
 
-        private Complex[] CalculateFFTLibrary(int offset, int length)
-        {
-            Complex32[] frequencies = new Complex32[length];
-            for (int i = 0; i < length; i++)
-            {
-                frequencies[i] = new Complex32((float)loadedAmplitudeData[i + offset], 0);
-            }
-
-            Fourier.Forward(frequencies);
-
-            // Omdan til Complex array i stedet for Complex32
-            Complex[] frequencies2 = new Complex[length];
-            for (int i = 0; i < length; i++)
-            {
-                frequencies2[i] = new Complex(frequencies[i].Real, frequencies[i].Imaginary);
-            }
-
-            return frequencies2;
-        }
-
         private void PopulateFrequencyDomainGraph(Complex[] frequencyBins)
         {
             chartFrequencyDomain.Series[0].Points.Clear();
@@ -130,24 +97,137 @@ namespace AudioAnalyzer
             }
         }
 
-        private void og250ToolStripMenuItem_Click(object sender, EventArgs e)
+        private void TimeDomain_OnUpdatedSelection()
         {
-            LoadAudiofileAndPopulate(@"C:\Users\kress\Documents\SOP\440 og 250 frekvens 441 samplerate.wav");
+            int rangeLength = (int)(timeDomain.SelectionLength * editedWaveFile.SampleRate);
+            if (rangeLength >= MinWindowSamples)
+            {
+                UpdateStatusStrip($"Du har markeret {rangeLength} datapunkter");
+            }
+            else
+            {
+                UpdateStatusStrip($"Du har markeret {rangeLength}/{MinWindowSamples} datapunkter");
+            }
         }
 
-        private void toolStripMenuItem2_Click(object sender, EventArgs e)
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            LoadAudiofileAndPopulate(@"C:\Users\kress\Documents\SOP\440 frekvens 441 samplerate sinus ny.wav");
-        }
-
-        private void discordJoinToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            LoadAudiofileAndPopulate(@"C:\Users\kress\Downloads\discord join.wav");
+            // Håndteres i eventlisteneren
+            openFileDialogAudioFile.ShowDialog();
         }
 
         private void backgroundWorkerFFT_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             statusStripMain.Update();
+        }
+
+        /// <summary>
+        /// Runder et heltal ned til nærmeste tal som går op i 2^n.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <returns></returns>
+        public static int FloorPower2(int x)
+        {
+            if (x < 1)
+            {
+                return 1;
+            }
+
+            return (int)Math.Pow(2, (int)Math.Log(x, 2));
+        }
+
+        private void backgroundWorkerFFT_DoWork(object sender, DoWorkEventArgs e)
+        {
+            (int offset, int length, bool toFFT) = ((int, int, bool))e.Argument;
+
+            // Cooley-Tukey er begrænset til input størrelser som går op i 2^n
+            int windowSize = FloorPower2(length);
+
+            if (toFFT)
+            {
+                double[] inputData = new double[windowSize];
+
+                for (int i = 0; i < windowSize; i++)
+                {
+                    inputData[i] = loadedAmplitudeData[i + offset];
+                }
+
+                e.Result = selectedFFTAlgorithm.FFT(inputData);
+            }
+            else
+            {
+                Complex[] inputData = new Complex[windowSize];
+
+                for (int i = 0; i < windowSize; i++)
+                {
+                    inputData[i] = loadedFrequencyData[i + offset];
+                }
+
+                e.Result = selectedFFTAlgorithm.IFFT(inputData);
+            }
+        }
+
+        private void StartFFTBackgroundWorker(ChartSelectionHelper chartSelection, bool toFFT)
+        {
+            float samplingInterval;
+            if (toFFT)
+            {
+                samplingInterval = editedWaveFile.SampleRate;
+            }
+            else
+            {
+                samplingInterval = (float)editedWaveFile.SampleRate / loadedFrequencyData.Length;
+            }
+            int selectionStartIndex = (int)(chartSelection.SelectionStart * samplingInterval);
+            int selectionLengthIndex = (int)(chartSelection.SelectionLength * samplingInterval);
+
+            // Cut-off, så man ikke får værdier undenfor de datapunkter man har.
+            if (selectionLengthIndex + selectionStartIndex >= editedWaveFile.Samples)
+            {
+                selectionLengthIndex = editedWaveFile.Samples - selectionStartIndex;
+            }
+
+            if (!chartSelection.Selected)
+            {
+                UpdateStatusStrip("Ingen data markeret, markerer alt");
+                selectionStartIndex = 0;
+                selectionLengthIndex = editedWaveFile.Samples;
+            }
+
+            if (selectionLengthIndex < MinWindowSamples)
+            {
+                UpdateStatusStrip($"Ikke nok data markeret, markér mindst {MinWindowSamples} datapunkter");
+                return;
+            }
+
+            backgroundWorkerFFT.CancelAsync();
+            backgroundWorkerFFT.RunWorkerAsync((selectionStartIndex, selectionLengthIndex, toFFT));
+        }
+
+        private void buttonFFT_Click(object sender, EventArgs e)
+        {
+            if (loadedAmplitudeData is null)
+            {
+                UpdateStatusStrip("Ingen lyd at konvertere");
+                return;
+            }
+
+            StartFFTBackgroundWorker(timeDomain, true);
+
+            this.Focus();
+        }
+
+        private void buttonInverseFFT_Click(object sender, EventArgs e)
+        {
+            if (loadedFrequencyData is null)
+            {
+                UpdateStatusStrip("Ingen FFT graf at konvertere");
+                return;
+            }
+
+            StartFFTBackgroundWorker(frequencyDomain, false);
+
+            this.Focus();
         }
 
         private void backgroundWorkerFFT_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -162,55 +242,17 @@ namespace AudioAnalyzer
                 return;
             }
 
-            loadedFrequencyData = (Complex[])e.Result;
-            PopulateFrequencyDomainGraph(loadedFrequencyData);
-        }
-
-        public static int FloorPower2(int x)
-        {
-            if (x < 1)
+            if (e.Result is Complex[] toFFT)
             {
-                return 1;
+                loadedFrequencyData = toFFT;
+                PopulateFrequencyDomainGraph(loadedFrequencyData);
             }
-            return (int)Math.Pow(2, (int)Math.Log(x, 2));
-        }
-
-        private void backgroundWorkerFFT_DoWork(object sender, DoWorkEventArgs e)
-        {
-            (int offset, int length) = ((int, int))e.Argument;
-
-            int windowLength = FloorPower2(length);
-            double[] inputData = new double[windowLength];
-
-            for (int i = 0; i < windowLength; i++)
+            else if (e.Result is double[] toAmplitude)
             {
-                inputData[i] = loadedAmplitudeData[i + offset];
+                loadedAmplitudeData = toAmplitude;
+                editedWaveFile.SetDemodulatedAudio(loadedAmplitudeData);
+                PopulateTimeDomainGraph(loadedAmplitudeData);
             }
-
-            Complex[] outputData = CooleyTukey.Forward(inputData);
-
-            e.Result = outputData;
-            //e.Result = CalculateFFT(offset, length);
-        }
-
-        private void buttonInverseFFT_Click(object sender, EventArgs e)
-        {
-            if (loadedFrequencyData is null)
-            {
-                UpdateStatusStrip("Ingen FFT graf at konvertere");
-                return;
-            }
-
-            Fourier.Inverse(loadedFrequencyData);
-            loadedAmplitudeData = new double[loadedFrequencyData.Length];
-
-            for (int i = 0; i < loadedFrequencyData.Length; i++)
-            {
-                loadedAmplitudeData[i] = loadedFrequencyData[i].Real;
-            }
-
-            editedWaveFile.SetDemodulatedAudio(loadedAmplitudeData);
-            PopulateTimeDomainGraph(loadedAmplitudeData);
         }
 
         private void toolStripSplitButton1_ButtonClick(object sender, EventArgs e) => discordJoinToolStripMenuItem_Click(sender, e);
@@ -223,12 +265,6 @@ namespace AudioAnalyzer
             }
 
             LoadAudiofileAndPopulate(openFileDialogAudioFile.FileName);
-        }
-
-        private void SaveFile(string filePath)
-        {
-            editedWaveFile.WriteAudioFile(filePath);
-            this.Text = filePath;
         }
 
         private void saveFileDialogAudioFile_FileOk(object sender, CancelEventArgs e)
@@ -260,6 +296,12 @@ namespace AudioAnalyzer
 
         private void PlayAudio()
         {
+            if (editedWaveFile is null)
+            {
+                UpdateStatusStrip("Ingen lyd at afspille");
+                return;
+            }
+
             // Write current audio represented in editedWaveFile.
             string tempFile = Path.GetTempFileName();
             editedWaveFile.WriteAudioFile(tempFile);
@@ -280,7 +322,7 @@ namespace AudioAnalyzer
                 case Keys.Space:
                     PlayAudio();
                     break;
-                case Keys.S when e.Control:
+                case Keys.S when e.Control && !(editedWaveFile is null):
                     saveToolStripMenuItem_Click(null, null);
                     break;
                 default:
@@ -288,35 +330,45 @@ namespace AudioAnalyzer
             }
         }
 
-        private void buttonFFT_Click(object sender, EventArgs e)
-        {
-            if (!timeDomain.Selected)
-            {
-                UpdateStatusStrip("Ingen data markeret");
-                return;
-            }
-
-            int selectionStartIndex = (int)(timeDomain.SelectionStart * editedWaveFile.SampleRate);
-            int selectionLengthIndex = (int)(timeDomain.SelectionLength * editedWaveFile.SampleRate);
-
-            if (selectionLengthIndex < MinWindowSamples)
-            {
-                UpdateStatusStrip($"Ikke nok data markeret, markér mindst {MinWindowSamples} datapunkter");
-                return;
-            }
-
-            backgroundWorkerFFT.CancelAsync();
-            backgroundWorkerFFT.RunWorkerAsync((selectionStartIndex, selectionLengthIndex));
-        }
-
         private void buttonAudioPlay_Click(object sender, EventArgs e)
         {
+            this.Focus();
+            
             PlayAudio();
         }
 
         private void buttonAudioStop_Click(object sender, EventArgs e)
         {
+            this.Focus();
+            
             soundPlayer?.Stop();
+        }
+
+        private void DeleteFromFrequencyDomain(int index, int length)
+        {
+            int N = loadedFrequencyData.Length;
+            for (int i = index; i < N/2; i++)
+            {
+                // Er nået slutningen af området.
+                if (i > index + length)
+                {
+                    break;
+                }
+                
+                loadedFrequencyData[i] = Complex.Zero;
+            }
+
+            // Modificer det spejlvendte område også
+            for (int i = (N - index) - length; i < N; i++)
+            {
+                // Er nået slutningen af det spejlvendte område.
+                if (i > N - index)
+                {
+                    break;
+                }
+
+                loadedFrequencyData[i] = Complex.Zero;
+            }
         }
 
         private void chartFrequencyDomain_KeyUp(object sender, KeyEventArgs e)
@@ -324,6 +376,15 @@ namespace AudioAnalyzer
             switch (e.KeyCode)
             {
                 case Keys.Delete when frequencyDomain.Selected:
+                    float frequencyBinSize = (float)editedWaveFile.SampleRate / loadedFrequencyData.Length;
+
+                    DeleteFromFrequencyDomain(
+                        (int)(frequencyDomain.SelectionStart * frequencyBinSize),
+                        (int)(frequencyDomain.SelectionLength * frequencyBinSize));
+
+                    PopulateFrequencyDomainGraph(loadedFrequencyData);
+
+                    frequencyDomain.Deselect();
                     break;
                 default:
                     break;
@@ -335,7 +396,7 @@ namespace AudioAnalyzer
             switch (e.KeyCode)
             {
                 case Keys.Delete when timeDomain.Selected:
-                    
+
                     break;
                 case Keys.Space:
                     PlayAudio();
@@ -343,6 +404,38 @@ namespace AudioAnalyzer
                 default:
                     break;
             }
+        }
+
+        private void deleteSelectionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void og250ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LoadAudiofileAndPopulate(@"C:\Users\kress\Documents\SOP\440 og 250 frekvens 441 samplerate.wav");
+        }
+
+        private void toolStripMenuItem2_Click(object sender, EventArgs e)
+        {
+            LoadAudiofileAndPopulate(@"C:\Users\kress\Documents\SOP\440 frekvens 441 samplerate sinus ny.wav");
+        }
+
+        private void radioButtonAlgorithmHomemade_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioButtonAlgorithmHomemade.Checked)
+            {
+                selectedFFTAlgorithm = FFTAlgorithms.HomemadeFFT;
+            }
+            else
+            {
+                selectedFFTAlgorithm = FFTAlgorithms.RobustFFT;
+            }
+        }
+
+        private void discordJoinToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LoadAudiofileAndPopulate(@"C:\Users\kress\Downloads\discord join.wav");
         }
     }
 }

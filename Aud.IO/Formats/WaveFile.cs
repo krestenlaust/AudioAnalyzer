@@ -12,7 +12,9 @@ namespace Aud.IO.Formats
         /// <inheritdoc/>
         public override uint BitsPerSample => waveData.Subchunk1.BitsPerSample;
         /// <inheritdoc/>
-        public override double AudioDuration => (waveData.Subchunk2.Data.Length / waveData.Subchunk1.NumChannels) / SampleRate;
+        public override int Samples => waveData.Subchunk2.Data.Length;
+        /// <inheritdoc/>
+        public override double AudioDuration => (Samples / waveData.Subchunk1.NumChannels) / SampleRate;
 
         private WaveStructure waveData;
 
@@ -20,6 +22,11 @@ namespace Aud.IO.Formats
         /// Læser og behandler lydfilen.
         /// </summary>
         /// <param name="filePath"></param>
+        /// <exception cref="ArgumentNullException">filePath er null.</exception>
+        /// <exception cref="FileNotFoundException">Filen blev ikke fundet.</exception>
+        /// <exception cref="UnknownFileFormatDescriptorException">Filens chunk ID var ikke 'RIFF'.</exception>
+        /// <exception cref="UnknownFileFormatException">Filens format ID var ikke 'WAVE'.</exception>
+        /// <exception cref="MissingSubchunkException">Filen indeholder ikke alle de nødvendige subchunks.</exception>
         public WaveFile(string filePath) : base(filePath)
         {
             if (filePath is null)
@@ -117,6 +124,8 @@ namespace Aud.IO.Formats
             waveData = new WaveStructure(formatSubchunk.Value, dataSubchunk.Value);
         }
 
+        public WaveStructure GetWaveData() => waveData;
+
         /// <inheritdoc/>
         public override double[] GetDemodulatedAudio()
         {
@@ -130,8 +139,14 @@ namespace Aud.IO.Formats
             return demodulatedAudio;
         }
 
+        /// <inheritdoc/>
         public override void SetDemodulatedAudio(double[] audio)
         {
+            if (audio is null)
+            {
+                throw new ArgumentNullException(nameof(audio));
+            }
+
             short[] modulatedAudio = new short[audio.Length];
 
             for (int i = 0; i < audio.Length; i++)
@@ -142,10 +157,13 @@ namespace Aud.IO.Formats
             waveData = new WaveStructure(waveData.Subchunk1.NumChannels, waveData.Subchunk1.SampleRate, waveData.Subchunk1.BitsPerSample, modulatedAudio);
         }
 
-        public WaveStructure GetWaveData() => waveData;
-
         public override void WriteAudioFile(string filePath)
         {
+            if (filePath is null)
+            {
+                throw new ArgumentNullException(nameof(filePath));
+            }
+
             using (FileStream fileStream = File.Create(filePath))
             {
                 fileStream.Write(BitConverter.GetBytes(waveData.ChunkID), 0, sizeof(uint));

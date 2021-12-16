@@ -29,12 +29,12 @@ namespace AudioAnalyzer
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea5 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend5 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea6 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend6 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormAnalyzerWindow));
             this.menuStripMain = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -64,6 +64,11 @@ namespace AudioAnalyzer
             this.toolStripStatusLabelSelectedSamples = new System.Windows.Forms.ToolStripStatusLabel();
             this.backgroundWorkerFFT = new System.ComponentModel.BackgroundWorker();
             this.saveFileDialogAudioFile = new System.Windows.Forms.SaveFileDialog();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.deleteSelectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.radioButtonAlgorithmHomemade = new System.Windows.Forms.RadioButton();
+            this.radioButtonAlgorithmRobust = new System.Windows.Forms.RadioButton();
             this.menuStripMain.SuspendLayout();
             this.tableLayoutPanelMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chartFrequencyDomain)).BeginInit();
@@ -71,6 +76,7 @@ namespace AudioAnalyzer
             this.groupBoxExtraControls.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.statusStripMain.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStripMain
@@ -81,7 +87,7 @@ namespace AudioAnalyzer
             this.editToolStripMenuItem});
             this.menuStripMain.Location = new System.Drawing.Point(0, 0);
             this.menuStripMain.Name = "menuStripMain";
-            this.menuStripMain.Size = new System.Drawing.Size(800, 28);
+            this.menuStripMain.Size = new System.Drawing.Size(800, 30);
             this.menuStripMain.TabIndex = 0;
             this.menuStripMain.Text = "menuStripMain";
             // 
@@ -95,59 +101,61 @@ namespace AudioAnalyzer
             this.toolStripSeparator2,
             this.closeToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(38, 24);
-            this.fileToolStripMenuItem.Text = "Fil";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(38, 26);
+            this.fileToolStripMenuItem.Text = "&Fil";
             // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(173, 26);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.openToolStripMenuItem.Text = "&Åben lydfil...";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(170, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(221, 6);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(173, 26);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.saveToolStripMenuItem.Text = "&Gem";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // saveAsToolStripMenuItem
             // 
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(173, 26);
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.saveAsToolStripMenuItem.Text = "Gem s&om...";
             this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(170, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(221, 6);
             // 
             // closeToolStripMenuItem
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(173, 26);
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.closeToolStripMenuItem.Text = "Luk";
             this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
             // 
             // editToolStripMenuItem
             // 
             this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.selectAllToolStripMenuItem});
+            this.selectAllToolStripMenuItem,
+            this.toolStripSeparator3,
+            this.deleteSelectionToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
-            this.editToolStripMenuItem.Size = new System.Drawing.Size(75, 24);
-            this.editToolStripMenuItem.Text = "Rediger";
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(75, 26);
+            this.editToolStripMenuItem.Text = "R&ediger";
             // 
             // selectAllToolStripMenuItem
             // 
             this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
-            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(146, 26);
+            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.selectAllToolStripMenuItem.Text = "Vælg alt";
             // 
             // openFileDialogAudioFile
@@ -165,62 +173,63 @@ namespace AudioAnalyzer
             this.tableLayoutPanelMain.Controls.Add(this.chartTimeDomain, 0, 0);
             this.tableLayoutPanelMain.Controls.Add(this.groupBoxExtraControls, 1, 0);
             this.tableLayoutPanelMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanelMain.Location = new System.Drawing.Point(0, 28);
+            this.tableLayoutPanelMain.Location = new System.Drawing.Point(0, 30);
             this.tableLayoutPanelMain.Name = "tableLayoutPanelMain";
             this.tableLayoutPanelMain.RowCount = 2;
             this.tableLayoutPanelMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanelMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanelMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanelMain.Size = new System.Drawing.Size(800, 396);
+            this.tableLayoutPanelMain.Size = new System.Drawing.Size(800, 394);
             this.tableLayoutPanelMain.TabIndex = 1;
             // 
             // chartFrequencyDomain
             // 
-            chartArea1.Name = "ChartArea1";
-            this.chartFrequencyDomain.ChartAreas.Add(chartArea1);
+            chartArea5.Name = "ChartArea1";
+            this.chartFrequencyDomain.ChartAreas.Add(chartArea5);
             this.chartFrequencyDomain.Dock = System.Windows.Forms.DockStyle.Fill;
-            legend1.Enabled = false;
-            legend1.Name = "Legend1";
-            this.chartFrequencyDomain.Legends.Add(legend1);
-            this.chartFrequencyDomain.Location = new System.Drawing.Point(3, 201);
+            legend5.Enabled = false;
+            legend5.Name = "Legend1";
+            this.chartFrequencyDomain.Legends.Add(legend5);
+            this.chartFrequencyDomain.Location = new System.Drawing.Point(3, 200);
             this.chartFrequencyDomain.Name = "chartFrequencyDomain";
-            series1.ChartArea = "ChartArea1";
-            series1.Legend = "Legend1";
-            series1.Name = "Series1";
-            this.chartFrequencyDomain.Series.Add(series1);
-            this.chartFrequencyDomain.Size = new System.Drawing.Size(622, 192);
+            series5.ChartArea = "ChartArea1";
+            series5.Legend = "Legend1";
+            series5.Name = "Series1";
+            this.chartFrequencyDomain.Series.Add(series5);
+            this.chartFrequencyDomain.Size = new System.Drawing.Size(622, 191);
             this.chartFrequencyDomain.TabIndex = 1;
             this.chartFrequencyDomain.KeyUp += new System.Windows.Forms.KeyEventHandler(this.chartFrequencyDomain_KeyUp);
             // 
             // chartTimeDomain
             // 
-            chartArea2.AxisX.Crossing = -1.7976931348623157E+308D;
-            chartArea2.AxisX.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
-            chartArea2.AxisX.IsMarginVisible = false;
-            chartArea2.AxisX.Minimum = 0D;
-            chartArea2.AxisX.MinorTickMark.Enabled = true;
-            chartArea2.AxisX.ToolTip = "Tid i lyden";
-            chartArea2.Name = "ChartArea1";
-            this.chartTimeDomain.ChartAreas.Add(chartArea2);
+            chartArea6.AxisX.Crossing = -1.7976931348623157E+308D;
+            chartArea6.AxisX.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
+            chartArea6.AxisX.IsMarginVisible = false;
+            chartArea6.AxisX.Minimum = 0D;
+            chartArea6.AxisX.MinorTickMark.Enabled = true;
+            chartArea6.AxisX.ToolTip = "Tid i lyden";
+            chartArea6.Name = "ChartArea1";
+            this.chartTimeDomain.ChartAreas.Add(chartArea6);
             this.chartTimeDomain.Dock = System.Windows.Forms.DockStyle.Fill;
-            legend2.Enabled = false;
-            legend2.Name = "Legend1";
-            this.chartTimeDomain.Legends.Add(legend2);
+            legend6.Enabled = false;
+            legend6.Name = "Legend1";
+            this.chartTimeDomain.Legends.Add(legend6);
             this.chartTimeDomain.Location = new System.Drawing.Point(3, 3);
             this.chartTimeDomain.Name = "chartTimeDomain";
-            series2.ChartArea = "ChartArea1";
-            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
-            series2.IsVisibleInLegend = false;
-            series2.Legend = "Legend1";
-            series2.Name = "AudioSamples";
-            series2.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
-            this.chartTimeDomain.Series.Add(series2);
-            this.chartTimeDomain.Size = new System.Drawing.Size(622, 192);
+            series6.ChartArea = "ChartArea1";
+            series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
+            series6.IsVisibleInLegend = false;
+            series6.Legend = "Legend1";
+            series6.Name = "AudioSamples";
+            series6.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
+            this.chartTimeDomain.Series.Add(series6);
+            this.chartTimeDomain.Size = new System.Drawing.Size(622, 191);
             this.chartTimeDomain.TabIndex = 0;
             this.chartTimeDomain.KeyUp += new System.Windows.Forms.KeyEventHandler(this.chartTimeDomain_KeyUp);
             // 
             // groupBoxExtraControls
             // 
+            this.groupBoxExtraControls.Controls.Add(this.groupBox2);
             this.groupBoxExtraControls.Controls.Add(this.groupBox1);
             this.groupBoxExtraControls.Controls.Add(this.buttonFFT);
             this.groupBoxExtraControls.Controls.Add(this.buttonInverseFFT);
@@ -228,13 +237,15 @@ namespace AudioAnalyzer
             this.groupBoxExtraControls.Location = new System.Drawing.Point(631, 3);
             this.groupBoxExtraControls.Name = "groupBoxExtraControls";
             this.tableLayoutPanelMain.SetRowSpan(this.groupBoxExtraControls, 2);
-            this.groupBoxExtraControls.Size = new System.Drawing.Size(166, 390);
+            this.groupBoxExtraControls.Size = new System.Drawing.Size(166, 388);
             this.groupBoxExtraControls.TabIndex = 5;
             this.groupBoxExtraControls.TabStop = false;
             this.groupBoxExtraControls.Text = "Ekstra indstillinger";
             // 
             // groupBox1
             // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.buttonAudioStop);
             this.groupBox1.Controls.Add(this.buttonAudioPlay);
             this.groupBox1.Location = new System.Drawing.Point(6, 91);
@@ -355,6 +366,55 @@ namespace AudioAnalyzer
             this.saveFileDialogAudioFile.Filter = "Wave filer|*.wav";
             this.saveFileDialogAudioFile.FileOk += new System.ComponentModel.CancelEventHandler(this.saveFileDialogAudioFile_FileOk);
             // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(221, 6);
+            // 
+            // deleteSelectionToolStripMenuItem
+            // 
+            this.deleteSelectionToolStripMenuItem.Name = "deleteSelectionToolStripMenuItem";
+            this.deleteSelectionToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.deleteSelectionToolStripMenuItem.Text = "Slet markering";
+            this.deleteSelectionToolStripMenuItem.Click += new System.EventHandler(this.deleteSelectionToolStripMenuItem_Click);
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox2.Controls.Add(this.radioButtonAlgorithmRobust);
+            this.groupBox2.Controls.Add(this.radioButtonAlgorithmHomemade);
+            this.groupBox2.Location = new System.Drawing.Point(6, 177);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(151, 78);
+            this.groupBox2.TabIndex = 7;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Algoritme";
+            // 
+            // radioButtonAlgorithmHomemade
+            // 
+            this.radioButtonAlgorithmHomemade.AutoSize = true;
+            this.radioButtonAlgorithmHomemade.Checked = true;
+            this.radioButtonAlgorithmHomemade.Location = new System.Drawing.Point(7, 21);
+            this.radioButtonAlgorithmHomemade.Name = "radioButtonAlgorithmHomemade";
+            this.radioButtonAlgorithmHomemade.Size = new System.Drawing.Size(110, 21);
+            this.radioButtonAlgorithmHomemade.TabIndex = 0;
+            this.radioButtonAlgorithmHomemade.TabStop = true;
+            this.radioButtonAlgorithmHomemade.Text = "Hjemmelavet";
+            this.radioButtonAlgorithmHomemade.UseVisualStyleBackColor = true;
+            this.radioButtonAlgorithmHomemade.CheckedChanged += new System.EventHandler(this.radioButtonAlgorithmHomemade_CheckedChanged);
+            // 
+            // radioButtonAlgorithmRobust
+            // 
+            this.radioButtonAlgorithmRobust.AutoSize = true;
+            this.radioButtonAlgorithmRobust.Location = new System.Drawing.Point(7, 48);
+            this.radioButtonAlgorithmRobust.Name = "radioButtonAlgorithmRobust";
+            this.radioButtonAlgorithmRobust.Size = new System.Drawing.Size(74, 21);
+            this.radioButtonAlgorithmRobust.TabIndex = 1;
+            this.radioButtonAlgorithmRobust.TabStop = true;
+            this.radioButtonAlgorithmRobust.Text = "Rubust";
+            this.radioButtonAlgorithmRobust.UseVisualStyleBackColor = true;
+            // 
             // FormAnalyzerWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -378,6 +438,8 @@ namespace AudioAnalyzer
             this.groupBox1.ResumeLayout(false);
             this.statusStripMain.ResumeLayout(false);
             this.statusStripMain.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -413,6 +475,11 @@ namespace AudioAnalyzer
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button buttonAudioStop;
         private System.Windows.Forms.Button buttonAudioPlay;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ToolStripMenuItem deleteSelectionToolStripMenuItem;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.RadioButton radioButtonAlgorithmRobust;
+        private System.Windows.Forms.RadioButton radioButtonAlgorithmHomemade;
     }
 }
 
