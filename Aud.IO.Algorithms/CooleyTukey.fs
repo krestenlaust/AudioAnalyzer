@@ -9,7 +9,7 @@ module CooleyTukey =
     let rec forwardComputations (amplitudes : Complex array) =
         let N = amplitudes.Length
 
-        if N <= 1 then
+        if N = 1 then
             amplitudes
         else
             let (even, odd) = splitArray(amplitudes)
@@ -18,9 +18,9 @@ module CooleyTukey =
             let oddArray = forwardComputations (odd |> Array.ofList)
 
             for k in 0..N/2-1 do
-                let w = exp(Complex(0.0, (-2.0 * Math.PI * float k) / float N))
-                amplitudes.[k] <- evenArray.[k] + w * oddArray.[k]
-                amplitudes.[N/2 + k] <- evenArray.[k] - w * oddArray.[k]
+                let w = exp(Complex(0.0, -2.0 * Math.PI * float k) / Complex(float N, 0.0)) * oddArray.[k]
+                amplitudes.[k] <- evenArray.[k] + w
+                amplitudes.[N/2-1 + k] <- evenArray.[k] - w
 
             amplitudes
 
@@ -40,13 +40,13 @@ module CooleyTukey =
         else
             let (even, odd) = splitArray(frequency)
 
-            let evenArray = forwardComputations (even |> Array.ofList)
-            let oddArray = forwardComputations (odd |> Array.ofList)
+            let evenArray = backwardComputations (even |> Array.ofList)
+            let oddArray = backwardComputations (odd |> Array.ofList)
 
             for k in 0..N/2-1 do
-                let w = exp(Complex(0.0, (2.0 * Math.PI * float k) / float N))
-                frequency.[k] <- (evenArray.[k] + w * oddArray.[k]) / Complex(double N, 0.0)
-                frequency.[N/2 + k] <- (evenArray.[k] - w * oddArray.[k]) / Complex(double N, 0.0)
+                let w = exp(Complex(0.0, 2.0 * Math.PI * float k) / Complex(float N, 0.0)) * oddArray.[k]
+                frequency.[k] <- (evenArray.[k] + w) / Complex(float N, 0.0)
+                frequency.[N/2-1 + k] <- (evenArray.[k] - w) / Complex(float N, 0.0)
 
             frequency
 
@@ -54,7 +54,7 @@ module CooleyTukey =
         let X = backwardComputations frequencyBins
         
         let N = frequencyBins.Length
-        let window k = 1.0 - (Math.Sin(Math.PI * (float k + 0.5) / float N) ** 2.0)
+        let window k = (1.0 - Math.Sin(Math.PI * (float k + 0.5) / float N)) ** 2.0
 
         [| for k in 0..N-1 -> X.[k].Real * window(k) |]
 

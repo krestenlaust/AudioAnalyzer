@@ -6,5 +6,6 @@ namespace AudioAnalyzer
     {
         Complex[] FFT(double[] amplitudes);
         double[] IFFT(Complex[] frequencyBins);
+        int AdjustWindowSize(int suggestedSize);
     }
 }

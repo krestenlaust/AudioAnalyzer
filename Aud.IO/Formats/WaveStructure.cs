@@ -43,7 +43,7 @@ namespace Aud.IO.Formats
         /// <param name="sampleRate"></param>
         /// <param name="bitsPerSample"></param>
         /// <param name="data"></param>
-        public WaveStructure(ushort numChannels, uint sampleRate, ushort bitsPerSample, short[] data)
+        public WaveStructure(ushort numChannels, uint sampleRate, ushort bitsPerSample, byte[] data)
         {
             ChunkID = BitConverter.ToUInt32(Encoding.ASCII.GetBytes("RIFF"), 0);
             Format = BitConverter.ToUInt32(Encoding.ASCII.GetBytes("WAVE"), 0);
@@ -168,12 +168,12 @@ namespace Aud.IO.Formats
         /// Selve lyden.
         /// </summary>
         [FieldOffset(8)]
-        public readonly short[] Data;
+        public readonly byte[] Data;
 
-        public DataSubchunk(short[] data)
+        public DataSubchunk(byte[] data)
         {
             ID = BitConverter.ToUInt32(Encoding.ASCII.GetBytes("data"), 0);
-            Size = (uint)(data.Length * 2);
+            Size = (uint)data.Length;
             Data = data;
         }
     }

@@ -16,6 +16,7 @@ namespace AudioAnalyzer
         /// for at blive registreret som en *deselection*.
         /// </summary>
         private const int DeselectionThreshhold = 10;
+        private const MouseButtons SelectionButton = MouseButtons.Right;
 
         private readonly Chart chart;
         /// <summary>
@@ -79,7 +80,7 @@ namespace AudioAnalyzer
         private void ChartMouseDown(MouseEventArgs e)
         {
             // Håndter kun venstre klik
-            if (e.Button != MouseButtons.Left)
+            if (e.Button != SelectionButton)
             {
                 return;
             }
@@ -109,7 +110,7 @@ namespace AudioAnalyzer
             }
 
             // Håndter kun venstre klik
-            if (e.Button != MouseButtons.Left)
+            if (e.Button != SelectionButton)
             {
                 return;
             }
@@ -126,8 +127,7 @@ namespace AudioAnalyzer
                 return;
             }
 
-            // Håndter kun venstre klik
-            if (e.Button != MouseButtons.Left)
+            if (e.Button != SelectionButton)
             {
                 return;
             }

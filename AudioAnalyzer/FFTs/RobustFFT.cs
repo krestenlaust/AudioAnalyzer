@@ -7,6 +7,11 @@ namespace AudioAnalyzer.FFTs
 {
     public class RobustFFT : IAlgorithmFFT
     {
+        public int AdjustWindowSize(int suggestedSize)
+        {
+            return suggestedSize;
+        }
+
         /// <exception cref="ArgumentNullException"></exception>
         public Complex[] FFT(double[] amplitudes)
         {

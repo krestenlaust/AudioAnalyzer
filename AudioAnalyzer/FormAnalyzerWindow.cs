@@ -63,20 +63,26 @@ namespace AudioAnalyzer
             this.Text = filePath;
         }
 
+        private void ClearPoints(Chart chart)
+        {
+            chart.Series.Add(new Series()
+            {
+                ChartType = chart.Series[0].ChartType,
+                XValueType = chart.Series[0].XValueType,
+                YValueType = chart.Series[0].YValueType
+            });
+            chart.Series.RemoveAt(0);
+        }
+
+
         private void PopulateTimeDomainGraph(double[] analogAmplitude)
         {
-            chartTimeDomain.Series[0].Points.Clear();
+            ClearPoints(chartTimeDomain);
             timeDomain.Deselect();
-
-            int interval = 1;
+            chartTimeDomain.ChartAreas[0].CursorX.Interval = 1 / editedWaveFile.SampleRate;
 
             for (int i = 0; i < analogAmplitude.Length; i++)
             {
-                if (i % interval != 0 && i != analogAmplitude.Length - 1)
-                {
-                    continue;
-                }
-
                 double xValue = (double)i / editedWaveFile.SampleRate;
                 chartTimeDomain.Series[0].Points.AddXY(xValue, analogAmplitude[i]);
             }
@@ -84,7 +90,7 @@ namespace AudioAnalyzer
 
         private void PopulateFrequencyDomainGraph(Complex[] frequencyBins)
         {
-            chartFrequencyDomain.Series[0].Points.Clear();
+            ClearPoints(chartFrequencyDomain);
 
             float frequencyBinSize = (float)editedWaveFile.SampleRate / frequencyBins.Length;
 
@@ -121,33 +127,19 @@ namespace AudioAnalyzer
             statusStripMain.Update();
         }
 
-        /// <summary>
-        /// Runder et heltal ned til nærmeste tal som går op i 2^n.
-        /// </summary>
-        /// <param name="x"></param>
-        /// <returns></returns>
-        public static int FloorPower2(int x)
-        {
-            if (x < 1)
-            {
-                return 1;
-            }
-
-            return (int)Math.Pow(2, (int)Math.Log(x, 2));
-        }
-
         private void backgroundWorkerFFT_DoWork(object sender, DoWorkEventArgs e)
         {
             (int offset, int length, bool toFFT) = ((int, int, bool))e.Argument;
 
             // Cooley-Tukey er begrænset til input størrelser som går op i 2^n
-            int windowSize = FloorPower2(length);
+            // Rund op til nærmeste.
+            int windowSize = selectedFFTAlgorithm.AdjustWindowSize(length);
 
             if (toFFT)
             {
                 double[] inputData = new double[windowSize];
 
-                for (int i = 0; i < windowSize; i++)
+                for (int i = 0; i < length; i++)
                 {
                     inputData[i] = loadedAmplitudeData[i + offset];
                 }
@@ -158,7 +150,7 @@ namespace AudioAnalyzer
             {
                 Complex[] inputData = new Complex[windowSize];
 
-                for (int i = 0; i < windowSize; i++)
+                for (int i = 0; i < length; i++)
                 {
                     inputData[i] = loadedFrequencyData[i + offset];
                 }
@@ -178,6 +170,7 @@ namespace AudioAnalyzer
             {
                 samplingInterval = (float)editedWaveFile.SampleRate / loadedFrequencyData.Length;
             }
+
             int selectionStartIndex = (int)(chartSelection.SelectionStart * samplingInterval);
             int selectionLengthIndex = (int)(chartSelection.SelectionLength * samplingInterval);
 
@@ -189,9 +182,8 @@ namespace AudioAnalyzer
 
             if (!chartSelection.Selected)
             {
-                UpdateStatusStrip("Ingen data markeret, markerer alt");
                 selectionStartIndex = 0;
-                selectionLengthIndex = editedWaveFile.Samples;
+                selectionLengthIndex = toFFT ? loadedAmplitudeData.Length : loadedFrequencyData.Length;
             }
 
             if (selectionLengthIndex < MinWindowSamples)
@@ -379,8 +371,8 @@ namespace AudioAnalyzer
                     float frequencyBinSize = (float)editedWaveFile.SampleRate / loadedFrequencyData.Length;
 
                     DeleteFromFrequencyDomain(
-                        (int)(frequencyDomain.SelectionStart * frequencyBinSize),
-                        (int)(frequencyDomain.SelectionLength * frequencyBinSize));
+                        (int)(frequencyDomain.SelectionStart / frequencyBinSize),
+                        (int)(frequencyDomain.SelectionLength / frequencyBinSize));
 
                     PopulateFrequencyDomainGraph(loadedFrequencyData);
 
