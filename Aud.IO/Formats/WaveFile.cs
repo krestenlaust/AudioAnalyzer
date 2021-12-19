@@ -133,9 +133,10 @@ namespace Aud.IO.Formats
 
             double[] demodulatedAudio = new double[modulatedAudio.Length];
 
+            double linearScalingFactor = Math.Pow(2, BitsPerSample - 1) - 1;
             for (int i = 0; i < modulatedAudio.Length; i++)
             {
-                demodulatedAudio[i] = modulatedAudio[i] / (Math.Pow(2, BitsPerSample) / 2 - 1);
+                demodulatedAudio[i] = modulatedAudio[i] / linearScalingFactor;
             }
 
             return demodulatedAudio;
@@ -151,7 +152,7 @@ namespace Aud.IO.Formats
 
             short[] modulatedAudio = new short[audio.Length];
 
-            double linearScalingFactor = Math.Pow(2, BitsPerSample) / 2 - 1;
+            double linearScalingFactor = Math.Pow(2, BitsPerSample - 1) - 1;
             for (int i = 0; i < audio.Length; i++)
             {
                 modulatedAudio[i] = (short)Math.Round(audio[i] * linearScalingFactor);

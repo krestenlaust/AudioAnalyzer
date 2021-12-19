@@ -98,7 +98,7 @@ namespace AudioAnalyzer
             {
                 chartFrequencyDomain.Series[0].Points.AddXY(
                     frequencyBinSize * (i + 1),
-                    frequencyBins[i].Magnitude
+                    frequencyBins[i].Magnitude / ((double)frequencyBins.Length / 2)
                     );
             }
         }
