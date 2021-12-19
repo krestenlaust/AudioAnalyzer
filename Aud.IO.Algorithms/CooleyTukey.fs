@@ -46,8 +46,8 @@ module CooleyTukey =
 
     let Forward (amplitudes : float array) =
         let N = amplitudes.Length
-        //let window k = Math.Sin(Math.PI * (float k + 0.5) / float N) ** 2.0
-        let window k = 1.0
+        let window k = Math.Sin(Math.PI * (float k + 0.5) / float N) ** 2.0
+        //let window k = 1.0
 
         let X = [| for k in 0..(N-1) -> Complex(amplitudes.[k] * window(k), 0.0) |]
         forwardComputations X
@@ -57,8 +57,8 @@ module CooleyTukey =
         let N = frequencyBins.Length
         let X = backwardComputations (frequencyBins, N)
         
-        //let window k = (1.0 - Math.Sin(Math.PI * (float k + 0.5) / float N)) ** 2.0
-        let window k = 1.0
+        let window k = (1.0 - Math.Sin(Math.PI * (float k + 0.5) / float N)) ** 2.0
+        //let window k = 1.0
 
         [| for k in 0..(N-1) -> X.[k].Real * window(k) |]
 

@@ -38,7 +38,7 @@ namespace AudioAnalyzer
 
             frequencyDomain = new ChartSelectionHelper(chartFrequencyDomain);
 
-            selectedFFTAlgorithm = FFTAlgorithms.HomemadeFFT;
+            selectedFFTAlgorithm = FFTAlgorithms.RobustFFT;
         }
 
         private void UpdateStatusStrip(string msg)

@@ -29,12 +29,12 @@ namespace AudioAnalyzer
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormAnalyzerWindow));
             this.menuStripMain = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -196,50 +196,50 @@ namespace AudioAnalyzer
             // 
             // chartFrequencyDomain
             // 
-            chartArea3.CursorX.IsUserEnabled = true;
-            chartArea3.CursorX.IsUserSelectionEnabled = true;
-            chartArea3.Name = "ChartArea1";
-            this.chartFrequencyDomain.ChartAreas.Add(chartArea3);
+            chartArea1.CursorX.IsUserEnabled = true;
+            chartArea1.CursorX.IsUserSelectionEnabled = true;
+            chartArea1.Name = "ChartArea1";
+            this.chartFrequencyDomain.ChartAreas.Add(chartArea1);
             this.chartFrequencyDomain.Dock = System.Windows.Forms.DockStyle.Fill;
-            legend3.Enabled = false;
-            legend3.Name = "Legend1";
-            this.chartFrequencyDomain.Legends.Add(legend3);
+            legend1.Enabled = false;
+            legend1.Name = "Legend1";
+            this.chartFrequencyDomain.Legends.Add(legend1);
             this.chartFrequencyDomain.Location = new System.Drawing.Point(3, 201);
             this.chartFrequencyDomain.Name = "chartFrequencyDomain";
-            series3.ChartArea = "ChartArea1";
-            series3.Legend = "Legend1";
-            series3.Name = "Series1";
-            this.chartFrequencyDomain.Series.Add(series3);
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            this.chartFrequencyDomain.Series.Add(series1);
             this.chartFrequencyDomain.Size = new System.Drawing.Size(622, 192);
             this.chartFrequencyDomain.TabIndex = 1;
             this.chartFrequencyDomain.KeyUp += new System.Windows.Forms.KeyEventHandler(this.chartFrequencyDomain_KeyUp);
             // 
             // chartTimeDomain
             // 
-            chartArea4.AxisX.Crossing = -1.7976931348623157E+308D;
-            chartArea4.AxisX.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
-            chartArea4.AxisX.IsMarginVisible = false;
-            chartArea4.AxisX.Minimum = 0D;
-            chartArea4.AxisX.MinorTickMark.Enabled = true;
-            chartArea4.AxisX.ToolTip = "Tid i lyden";
-            chartArea4.AxisX2.Enabled = System.Windows.Forms.DataVisualization.Charting.AxisEnabled.False;
-            chartArea4.CursorX.IsUserEnabled = true;
-            chartArea4.CursorX.IsUserSelectionEnabled = true;
-            chartArea4.Name = "ChartArea1";
-            this.chartTimeDomain.ChartAreas.Add(chartArea4);
+            chartArea2.AxisX.Crossing = -1.7976931348623157E+308D;
+            chartArea2.AxisX.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
+            chartArea2.AxisX.IsMarginVisible = false;
+            chartArea2.AxisX.Minimum = 0D;
+            chartArea2.AxisX.MinorTickMark.Enabled = true;
+            chartArea2.AxisX.ToolTip = "Tid i lyden";
+            chartArea2.AxisX2.Enabled = System.Windows.Forms.DataVisualization.Charting.AxisEnabled.False;
+            chartArea2.CursorX.IsUserEnabled = true;
+            chartArea2.CursorX.IsUserSelectionEnabled = true;
+            chartArea2.Name = "ChartArea1";
+            this.chartTimeDomain.ChartAreas.Add(chartArea2);
             this.chartTimeDomain.Dock = System.Windows.Forms.DockStyle.Fill;
-            legend4.Enabled = false;
-            legend4.Name = "Legend1";
-            this.chartTimeDomain.Legends.Add(legend4);
+            legend2.Enabled = false;
+            legend2.Name = "Legend1";
+            this.chartTimeDomain.Legends.Add(legend2);
             this.chartTimeDomain.Location = new System.Drawing.Point(3, 3);
             this.chartTimeDomain.Name = "chartTimeDomain";
-            series4.ChartArea = "ChartArea1";
-            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
-            series4.IsVisibleInLegend = false;
-            series4.Legend = "Legend1";
-            series4.Name = "AudioSamples";
-            series4.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
-            this.chartTimeDomain.Series.Add(series4);
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
+            series2.IsVisibleInLegend = false;
+            series2.Legend = "Legend1";
+            series2.Name = "AudioSamples";
+            series2.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
+            this.chartTimeDomain.Series.Add(series2);
             this.chartTimeDomain.Size = new System.Drawing.Size(622, 192);
             this.chartTimeDomain.TabIndex = 0;
             this.chartTimeDomain.KeyUp += new System.Windows.Forms.KeyEventHandler(this.chartTimeDomain_KeyUp);
@@ -275,22 +275,22 @@ namespace AudioAnalyzer
             // radioButtonAlgorithmRobust
             // 
             this.radioButtonAlgorithmRobust.AutoSize = true;
+            this.radioButtonAlgorithmRobust.Checked = true;
             this.radioButtonAlgorithmRobust.Location = new System.Drawing.Point(7, 48);
             this.radioButtonAlgorithmRobust.Name = "radioButtonAlgorithmRobust";
             this.radioButtonAlgorithmRobust.Size = new System.Drawing.Size(74, 21);
             this.radioButtonAlgorithmRobust.TabIndex = 1;
+            this.radioButtonAlgorithmRobust.TabStop = true;
             this.radioButtonAlgorithmRobust.Text = "Rubust";
             this.radioButtonAlgorithmRobust.UseVisualStyleBackColor = true;
             // 
             // radioButtonAlgorithmHomemade
             // 
             this.radioButtonAlgorithmHomemade.AutoSize = true;
-            this.radioButtonAlgorithmHomemade.Checked = true;
             this.radioButtonAlgorithmHomemade.Location = new System.Drawing.Point(7, 21);
             this.radioButtonAlgorithmHomemade.Name = "radioButtonAlgorithmHomemade";
             this.radioButtonAlgorithmHomemade.Size = new System.Drawing.Size(110, 21);
             this.radioButtonAlgorithmHomemade.TabIndex = 0;
-            this.radioButtonAlgorithmHomemade.TabStop = true;
             this.radioButtonAlgorithmHomemade.Text = "Hjemmelavet";
             this.radioButtonAlgorithmHomemade.UseVisualStyleBackColor = true;
             this.radioButtonAlgorithmHomemade.CheckedChanged += new System.EventHandler(this.radioButtonAlgorithmHomemade_CheckedChanged);
