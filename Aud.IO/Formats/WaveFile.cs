@@ -1,34 +1,29 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Text;
 using Aud.IO.Exceptions;
 
 namespace Aud.IO.Formats
 {
+    /// <summary>
+    /// Wave fil formatet lavet til at følge standarden.
+    /// </summary>
     public class WaveFile : AudioFile
     {
-        /// <inheritdoc/>
-        public override uint SampleRate => waveData.Subchunk1.SampleRate;
-        /// <inheritdoc/>
-        public override uint BitsPerSample => waveData.Subchunk1.BitsPerSample;
-        /// <inheritdoc/>
-        public override int Samples => waveData.Subchunk2.Data.Length / (int)(BitsPerSample / 8);
-        /// <inheritdoc/>
-        public override double AudioDuration => (Samples / waveData.Subchunk1.NumChannels) / (double)SampleRate;
-
         private WaveStructure waveData;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="WaveFile"/> class.
         /// Læser og behandler lydfilen.
         /// </summary>
-        /// <param name="filePath"></param>
+        /// <param name="filePath">Non-null string containing path to wavefile.</param>
         /// <exception cref="ArgumentNullException">filePath er null.</exception>
         /// <exception cref="FileNotFoundException">Filen blev ikke fundet.</exception>
         /// <exception cref="UnknownFileFormatDescriptorException">Filens chunk ID var ikke 'RIFF'.</exception>
         /// <exception cref="UnknownFileFormatException">Filens format ID var ikke 'WAVE'.</exception>
         /// <exception cref="MissingSubchunkException">Filen indeholder ikke alle de nødvendige subchunks.</exception>
-        public WaveFile(string filePath) : base(filePath)
+        public WaveFile(string filePath)
+            : base(filePath)
         {
             if (filePath is null)
             {
@@ -78,7 +73,7 @@ namespace Aud.IO.Formats
                     switch (subchunkID)
                     {
                         case "fmt ":
-                            byte[] formatSubchunkBytes = new byte[sizeof(ushort) * 4 + sizeof(uint) * 2];
+                            byte[] formatSubchunkBytes = new byte[(sizeof(ushort) * 4) + (sizeof(uint) * 2)];
                             stream.Read(formatSubchunkBytes, 0, formatSubchunkBytes.Length);
 
                             formatSubchunk = new FormatSubchunk(
@@ -95,6 +90,7 @@ namespace Aud.IO.Formats
                                 // Spring over dem.
                                 stream.Seek(subchunkSize - formatSubchunkBytes.Length, SeekOrigin.Current);
                             }
+
                             break;
                         case "data":
                             byte[] dataSubchunkBytes = new byte[subchunkSize];
@@ -123,6 +119,22 @@ namespace Aud.IO.Formats
             }
         }
 
+        /// <inheritdoc/>
+        public override uint SampleRate => waveData.Subchunk1.SampleRate;
+
+        /// <inheritdoc/>
+        public override uint BitsPerSample => waveData.Subchunk1.BitsPerSample;
+
+        /// <inheritdoc/>
+        public override int Samples => waveData.Subchunk2.Data.Length / (int)(BitsPerSample / 8);
+
+        /// <inheritdoc/>
+        public override double AudioDuration => (Samples / waveData.Subchunk1.NumChannels) / (double)SampleRate;
+
+        /// <summary>
+        /// Returnerer den struktur wave-filen er gemt i.
+        /// </summary>
+        /// <returns>Returnerer værdi-type.</returns>
         public WaveStructure GetWaveData() => waveData;
 
         /// <inheritdoc/>
@@ -164,6 +176,7 @@ namespace Aud.IO.Formats
             waveData = new WaveStructure(waveData.Subchunk1.NumChannels, waveData.Subchunk1.SampleRate, waveData.Subchunk1.BitsPerSample, audioBytes);
         }
 
+        /// <inheritdoc/>
         public override void WriteAudioFile(string filePath)
         {
             if (filePath is null)

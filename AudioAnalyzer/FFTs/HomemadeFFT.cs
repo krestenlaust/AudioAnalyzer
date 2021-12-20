@@ -11,7 +11,7 @@ namespace AudioAnalyzer.FFTs
         /// </summary>
         /// <param name="x"></param>
         /// <returns></returns>
-        public static int CeilPower2(int x)
+        private static int CeilPower2(int x)
         {
             if (x < 1)
             {
@@ -23,6 +23,11 @@ namespace AudioAnalyzer.FFTs
             return (int)Math.Round(result);
         }
 
+        /// <summary>
+        /// Forstør vinduesstørrelsen så den opfølger de krav Cooley-Tukey har.
+        /// </summary>
+        /// <param name="currentSize"></param>
+        /// <returns></returns>
         public int AdjustWindowSize(int currentSize)
         {
             return CeilPower2(currentSize);

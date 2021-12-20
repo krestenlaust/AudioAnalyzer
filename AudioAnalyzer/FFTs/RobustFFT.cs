@@ -7,6 +7,11 @@ namespace AudioAnalyzer.FFTs
 {
     public class RobustFFT : IAlgorithmFFT
     {
+        /// <summary>
+        /// Denne algoritme har ingen krav til størrelsen af vinduet.
+        /// </summary>
+        /// <param name="suggestedSize"></param>
+        /// <returns></returns>
         public int AdjustWindowSize(int suggestedSize)
         {
             return suggestedSize;

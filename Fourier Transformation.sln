@@ -15,7 +15,12 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Aud.IO.Algorithms", "Aud.IO
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aud.IO.Algorithms.Tests", "Aud.IO.Algorithms.Tests\Aud.IO.Algorithms.Tests.csproj", "{AD0684CB-8D1B-42EB-980A-826099DBBDD8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aud.IO.Tests", "Aud.IO.Tests\Aud.IO.Tests.csproj", "{720FF4EE-2E3B-4702-A0FB-3E6C6C0F0E32}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aud.IO.Tests", "Aud.IO.Tests\Aud.IO.Tests.csproj", "{720FF4EE-2E3B-4702-A0FB-3E6C6C0F0E32}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{60E65AE1-1366-4B3A-A514-361110F7B1F8}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

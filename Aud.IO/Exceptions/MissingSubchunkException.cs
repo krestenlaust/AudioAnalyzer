@@ -1,9 +1,8 @@
-﻿using System;
-
-namespace Aud.IO.Exceptions
+﻿namespace Aud.IO.Exceptions
 {
-    public class MissingSubchunkException : Exception
+    public class MissingSubchunkException : System.Exception
     {
-        public MissingSubchunkException(string message) : base(message) { }
+        public MissingSubchunkException(string message)
+            : base(message) { }
     }
 }

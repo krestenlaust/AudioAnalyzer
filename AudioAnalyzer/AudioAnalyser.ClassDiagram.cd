@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="AudioAnalyzer.FFTs.HomemadeFFT" Collapsed="true">
+    <Position X="4.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAEACAAAAAAAAAAgAAAAQAAAAA=</HashCode>
+      <FileName>FFTs\HomemadeFFT.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="AudioAnalyzer.FFTs.RobustFFT" Collapsed="true">
+    <Position X="4.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAEACAAAAAAAAAAgAAAAAAAAAA=</HashCode>
+      <FileName>FFTs\RobustFFT.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="AudioAnalyzer.FormAnalyzerWindow" Collapsed="true">
+    <Position X="1" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>DEAFAh1hYKSDZBCOECSkwEASKiKAwgBItii9AAFAoAU=</HashCode>
+      <FileName>FormAnalyzerWindow.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AudioAnalyzer.ChartSelectionHelper">
+    <Position X="2.75" Y="0.5" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AQAAEACAAIAAAgAIEAAAAgAkEBAAAAAQAAAAZEAAAAI=</HashCode>
+      <FileName>ChartSelectionHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AudioAnalyzer.FFTAlgorithms">
+    <Position X="4.5" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAgEAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>FFTAlgorithms.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="AudioAnalyzer.IAlgorithmFFT">
+    <Position X="6.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAEACAAAAAAAAAAgAAAAAAAAAA=</HashCode>
+      <FileName>IAlgorithmFFT.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
