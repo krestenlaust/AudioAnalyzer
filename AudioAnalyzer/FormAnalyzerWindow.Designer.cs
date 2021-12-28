@@ -107,40 +107,40 @@ namespace AudioAnalyzer
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(173, 26);
             this.openToolStripMenuItem.Text = "&Åben lydfil...";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(221, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(170, 6);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
             this.saveToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(173, 26);
             this.saveToolStripMenuItem.Text = "&Gem";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // saveAsToolStripMenuItem
             // 
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(173, 26);
             this.saveAsToolStripMenuItem.Text = "Gem s&om...";
             this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(221, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(170, 6);
             // 
             // closeToolStripMenuItem
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
             this.closeToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(173, 26);
             this.closeToolStripMenuItem.Text = "Luk";
             this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
             // 
@@ -194,7 +194,7 @@ namespace AudioAnalyzer
             this.tableLayoutPanelMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanelMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanelMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanelMain.Size = new System.Drawing.Size(800, 396);
+            this.tableLayoutPanelMain.Size = new System.Drawing.Size(800, 400);
             this.tableLayoutPanelMain.TabIndex = 1;
             // 
             // chartFrequencyDomain
@@ -207,13 +207,13 @@ namespace AudioAnalyzer
             legend1.Enabled = false;
             legend1.Name = "Legend1";
             this.chartFrequencyDomain.Legends.Add(legend1);
-            this.chartFrequencyDomain.Location = new System.Drawing.Point(3, 201);
+            this.chartFrequencyDomain.Location = new System.Drawing.Point(3, 203);
             this.chartFrequencyDomain.Name = "chartFrequencyDomain";
             series1.ChartArea = "ChartArea1";
             series1.Legend = "Legend1";
             series1.Name = "Series1";
             this.chartFrequencyDomain.Series.Add(series1);
-            this.chartFrequencyDomain.Size = new System.Drawing.Size(622, 192);
+            this.chartFrequencyDomain.Size = new System.Drawing.Size(622, 194);
             this.chartFrequencyDomain.TabIndex = 1;
             this.chartFrequencyDomain.KeyUp += new System.Windows.Forms.KeyEventHandler(this.chartFrequencyDomain_KeyUp);
             // 
@@ -243,7 +243,7 @@ namespace AudioAnalyzer
             series2.Name = "AudioSamples";
             series2.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
             this.chartTimeDomain.Series.Add(series2);
-            this.chartTimeDomain.Size = new System.Drawing.Size(622, 192);
+            this.chartTimeDomain.Size = new System.Drawing.Size(622, 194);
             this.chartTimeDomain.TabIndex = 0;
             this.chartTimeDomain.KeyUp += new System.Windows.Forms.KeyEventHandler(this.chartTimeDomain_KeyUp);
             // 
@@ -257,7 +257,7 @@ namespace AudioAnalyzer
             this.groupBoxExtraControls.Location = new System.Drawing.Point(631, 3);
             this.groupBoxExtraControls.Name = "groupBoxExtraControls";
             this.tableLayoutPanelMain.SetRowSpan(this.groupBoxExtraControls, 2);
-            this.groupBoxExtraControls.Size = new System.Drawing.Size(166, 390);
+            this.groupBoxExtraControls.Size = new System.Drawing.Size(166, 394);
             this.groupBoxExtraControls.TabIndex = 5;
             this.groupBoxExtraControls.TabStop = false;
             this.groupBoxExtraControls.Text = "Ekstra indstillinger";
@@ -363,9 +363,9 @@ namespace AudioAnalyzer
             this.statusStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripSplitButton1,
             this.toolStripStatusLabelSelectedSamples});
-            this.statusStripMain.Location = new System.Drawing.Point(0, 424);
+            this.statusStripMain.Location = new System.Drawing.Point(0, 428);
             this.statusStripMain.Name = "statusStripMain";
-            this.statusStripMain.Size = new System.Drawing.Size(800, 26);
+            this.statusStripMain.Size = new System.Drawing.Size(800, 22);
             this.statusStripMain.TabIndex = 2;
             this.statusStripMain.Text = "statusStripMain";
             // 
@@ -376,11 +376,13 @@ namespace AudioAnalyzer
             this.discordJoinToolStripMenuItem,
             this.toolStripMenuItem2,
             this.og250ToolStripMenuItem});
+            this.toolStripSplitButton1.Enabled = false;
             this.toolStripSplitButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripSplitButton1.Image")));
             this.toolStripSplitButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripSplitButton1.Name = "toolStripSplitButton1";
             this.toolStripSplitButton1.Size = new System.Drawing.Size(146, 24);
             this.toolStripSplitButton1.Text = "Test - discord join";
+            this.toolStripSplitButton1.Visible = false;
             this.toolStripSplitButton1.ButtonClick += new System.EventHandler(this.toolStripSplitButton1_ButtonClick);
             // 
             // discordJoinToolStripMenuItem
@@ -407,7 +409,7 @@ namespace AudioAnalyzer
             // toolStripStatusLabelSelectedSamples
             // 
             this.toolStripStatusLabelSelectedSamples.Name = "toolStripStatusLabelSelectedSamples";
-            this.toolStripStatusLabelSelectedSamples.Size = new System.Drawing.Size(0, 20);
+            this.toolStripStatusLabelSelectedSamples.Size = new System.Drawing.Size(0, 16);
             // 
             // backgroundWorkerFFT
             // 

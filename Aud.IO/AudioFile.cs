@@ -42,12 +42,12 @@
         /// Returns the audio data in analog (demodulated from LPCM).
         /// </summary>
         /// <returns>LPCM demodulated audio.</returns>
-        public abstract double[] GetDemodulatedAudio();
+        public abstract float[] GetDemodulatedAudio();
 
         /// <summary>
         /// Sets audio by audio data not modulated using LPCM.
         /// </summary>
         /// <param name="audio">LPCM modulated audio.</param>
-        public abstract void SetDemodulatedAudio(double[] audio);
+        public abstract void SetDemodulatedAudio(float[] audio);
     }
 }

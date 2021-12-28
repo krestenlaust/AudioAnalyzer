@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using Aud.IO.Exceptions;
 
 namespace Aud.IO.Formats
@@ -14,7 +15,7 @@ namespace Aud.IO.Formats
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WaveFile"/> class.
-        /// Læser og behandler lydfilen.
+        /// Læser og behandler lydfilen synkront.
         /// </summary>
         /// <param name="filePath">Non-null string containing path to wavefile.</param>
         /// <exception cref="ArgumentNullException">filePath er null.</exception>
@@ -119,6 +120,12 @@ namespace Aud.IO.Formats
             }
         }
 
+        public WaveFile(WaveStructure waveData)
+            : base(null)
+        {
+            this.waveData = waveData;
+        }
+
         /// <inheritdoc/>
         public override uint SampleRate => waveData.Subchunk1.SampleRate;
 
@@ -132,20 +139,128 @@ namespace Aud.IO.Formats
         public override double AudioDuration => (Samples / waveData.Subchunk1.NumChannels) / (double)SampleRate;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="WaveFile"/> class.
+        /// Læser og behandler lydfilen asynkront.
+        /// </summary>
+        /// <param name="filePath">Non-null string containing path to wavefile.</param>
+        /// <returns>Lydfilen.</returns>
+        /// <exception cref="ArgumentNullException">filePath er null.</exception>
+        /// <exception cref="FileNotFoundException">Filen blev ikke fundet.</exception>
+        /// <exception cref="UnknownFileFormatDescriptorException">Filens chunk ID var ikke 'RIFF'.</exception>
+        /// <exception cref="UnknownFileFormatException">Filens format ID var ikke 'WAVE'.</exception>
+        /// <exception cref="MissingSubchunkException">Filen indeholder ikke alle de nødvendige subchunks.</exception>
+        public static async Task<WaveFile> LoadFileAsync(string filePath)
+        {
+            if (filePath is null)
+            {
+                throw new ArgumentNullException(nameof(filePath));
+            }
+
+            // Kast exception hvis filen ikke eksisterer.
+            using (FileStream stream = File.OpenRead(filePath))
+            {
+                // Primary chunk
+                byte[] chunkIDBytes = new byte[sizeof(int)];
+                await stream.ReadAsync(chunkIDBytes, 0, chunkIDBytes.Length);
+                string chunkID = Encoding.ASCII.GetString(chunkIDBytes);
+
+                if (chunkID != "RIFF")
+                {
+                    throw new UnknownFileFormatDescriptorException($"Was '{chunkID}', expected 'RIFF'");
+                }
+
+                byte[] chunkSizeBytes = new byte[sizeof(uint)];
+                byte[] formatBytes = new byte[sizeof(int)];
+                await stream.ReadAsync(chunkSizeBytes, 0, chunkSizeBytes.Length);
+                await stream.ReadAsync(formatBytes, 0, formatBytes.Length);
+                string format = Encoding.ASCII.GetString(formatBytes);
+
+                if (format != "WAVE")
+                {
+                    throw new UnknownFileFormatException($"Was '{format}', expected 'WAVE'");
+                }
+
+                FormatSubchunk? formatSubchunk = null;
+                DataSubchunk? dataSubchunk = null;
+
+                // Læs subchunks indtil filen er færdig-læst.
+                while (stream.Length != stream.Position)
+                {
+                    // Aflæs subchunk ID
+                    byte[] subchunkIDBytes = new byte[sizeof(int)];
+                    byte[] subchunkSizeBytes = new byte[sizeof(uint)];
+                    await stream.ReadAsync(subchunkIDBytes, 0, subchunkIDBytes.Length);
+                    await stream.ReadAsync(subchunkSizeBytes, 0, subchunkSizeBytes.Length);
+
+                    string subchunkID = Encoding.ASCII.GetString(subchunkIDBytes);
+                    uint subchunkSize = BitConverter.ToUInt32(subchunkSizeBytes, 0);
+
+                    // Behandl subchunk baseret på dens ID.
+                    switch (subchunkID)
+                    {
+                        case "fmt ":
+                            byte[] formatSubchunkBytes = new byte[(sizeof(ushort) * 4) + (sizeof(uint) * 2)];
+                            await stream.ReadAsync(formatSubchunkBytes, 0, formatSubchunkBytes.Length);
+
+                            formatSubchunk = new FormatSubchunk(
+                                BitConverter.ToUInt16(formatSubchunkBytes, 0),
+                                BitConverter.ToUInt16(formatSubchunkBytes, 2),
+                                BitConverter.ToUInt32(formatSubchunkBytes, 4),
+                                BitConverter.ToUInt32(formatSubchunkBytes, 8),
+                                BitConverter.ToUInt16(formatSubchunkBytes, 12),
+                                BitConverter.ToUInt16(formatSubchunkBytes, 14));
+
+                            // Hvis der er ukendte ekstra parametre (ifl. standarden er det muligt)
+                            if (formatSubchunkBytes.Length < subchunkSize)
+                            {
+                                // Spring over dem.
+                                stream.Seek(subchunkSize - formatSubchunkBytes.Length, SeekOrigin.Current);
+                            }
+
+                            break;
+                        case "data":
+                            byte[] dataSubchunkBytes = new byte[subchunkSize];
+                            await stream.ReadAsync(dataSubchunkBytes, 0, dataSubchunkBytes.Length);
+
+                            dataSubchunk = new DataSubchunk(dataSubchunkBytes);
+                            break;
+                        default:
+                            // ukendt subchunk, ignorer den.
+                            stream.Seek(subchunkSize, SeekOrigin.Current);
+                            break;
+                    }
+                }
+
+                if (formatSubchunk is null)
+                {
+                    throw new MissingSubchunkException("fmt ");
+                }
+
+                if (dataSubchunk is null)
+                {
+                    throw new MissingSubchunkException("data");
+                }
+
+                return new WaveFile(new WaveStructure(formatSubchunk.Value, dataSubchunk.Value));
+            }
+        }
+
+        /// <summary>
         /// Returnerer den struktur wave-filen er gemt i.
         /// </summary>
         /// <returns>Returnerer værdi-type.</returns>
         public WaveStructure GetWaveData() => waveData;
 
         /// <inheritdoc/>
-        public override double[] GetDemodulatedAudio()
+        public override float[] GetDemodulatedAudio()
         {
             short[] modulatedAudio = new short[waveData.Subchunk2.Data.Length / (BitsPerSample / 8)];
             Buffer.BlockCopy(waveData.Subchunk2.Data, 0, modulatedAudio, 0, waveData.Subchunk2.Data.Length);
 
-            double[] demodulatedAudio = new double[modulatedAudio.Length];
+            float[] demodulatedAudio = new float[modulatedAudio.Length];
 
-            double linearScalingFactor = Math.Pow(2, BitsPerSample - 1) - 1;
+            // At minus eksponenten med 1 svarer til at dividere med 2.
+            float linearScalingFactor = (float)(Math.Pow(2, BitsPerSample - 1) - 1);
             for (int i = 0; i < modulatedAudio.Length; i++)
             {
                 demodulatedAudio[i] = modulatedAudio[i] / linearScalingFactor;
@@ -155,7 +270,7 @@ namespace Aud.IO.Formats
         }
 
         /// <inheritdoc/>
-        public override void SetDemodulatedAudio(double[] audio)
+        public override void SetDemodulatedAudio(float[] audio)
         {
             if (audio is null)
             {
@@ -164,7 +279,8 @@ namespace Aud.IO.Formats
 
             short[] modulatedAudio = new short[audio.Length];
 
-            double linearScalingFactor = Math.Pow(2, BitsPerSample - 1) - 1;
+            // At minus eksponenten med 1 svarer til at dividere med 2.
+            float linearScalingFactor = (float)(Math.Pow(2, BitsPerSample - 1) - 1);
             for (int i = 0; i < audio.Length; i++)
             {
                 modulatedAudio[i] = (short)Math.Round(audio[i] * linearScalingFactor);
@@ -174,6 +290,37 @@ namespace Aud.IO.Formats
             Buffer.BlockCopy(modulatedAudio, 0, audioBytes, 0, audioBytes.Length);
 
             waveData = new WaveStructure(waveData.Subchunk1.NumChannels, waveData.Subchunk1.SampleRate, waveData.Subchunk1.BitsPerSample, audioBytes);
+        }
+
+        public async Task WriteAudioFileAsync(string filePath)
+        {
+            if (filePath is null)
+            {
+                throw new ArgumentNullException(nameof(filePath));
+            }
+
+            using (FileStream fileStream = File.Create(filePath))
+            {
+                await fileStream.WriteAsync(BitConverter.GetBytes(waveData.ChunkID), 0, sizeof(uint));
+                await fileStream.WriteAsync(BitConverter.GetBytes(waveData.ChunkSize), 0, sizeof(uint));
+                await fileStream.WriteAsync(BitConverter.GetBytes(waveData.Format), 0, sizeof(uint));
+
+                await fileStream.WriteAsync(BitConverter.GetBytes(waveData.Subchunk1.ID), 0, sizeof(uint));
+                await fileStream.WriteAsync(BitConverter.GetBytes(waveData.Subchunk1.Size), 0, sizeof(uint));
+                await fileStream.WriteAsync(BitConverter.GetBytes(waveData.Subchunk1.AudioFormat), 0, sizeof(ushort));
+                await fileStream.WriteAsync(BitConverter.GetBytes(waveData.Subchunk1.NumChannels), 0, sizeof(ushort));
+                await fileStream.WriteAsync(BitConverter.GetBytes(waveData.Subchunk1.SampleRate), 0, sizeof(uint));
+                await fileStream.WriteAsync(BitConverter.GetBytes(waveData.Subchunk1.ByteRate), 0, sizeof(uint));
+                await fileStream.WriteAsync(BitConverter.GetBytes(waveData.Subchunk1.BlockAlign), 0, sizeof(ushort));
+                await fileStream.WriteAsync(BitConverter.GetBytes(waveData.Subchunk1.BitsPerSample), 0, sizeof(ushort));
+
+                await fileStream.WriteAsync(BitConverter.GetBytes(waveData.Subchunk2.ID), 0, sizeof(uint));
+                await fileStream.WriteAsync(BitConverter.GetBytes(waveData.Subchunk2.Size), 0, sizeof(uint));
+
+                await fileStream.WriteAsync(waveData.Subchunk2.Data, 0, waveData.Subchunk2.Data.Length);
+
+                await fileStream.FlushAsync();
+            }
         }
 
         /// <inheritdoc/>

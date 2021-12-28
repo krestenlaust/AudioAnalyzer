@@ -1,11 +1,11 @@
-﻿using System.Numerics;
+﻿using MathNet.Numerics;
 
 namespace AudioAnalyzer
 {
     public interface IAlgorithmFFT
     {
-        Complex[] FFT(double[] amplitudes);
-        double[] IFFT(Complex[] frequencyBins);
+        Complex32[] FFT(float[] amplitudes);
+        float[] IFFT(Complex32[] frequencyBins);
         int AdjustWindowSize(int suggestedSize);
     }
 }

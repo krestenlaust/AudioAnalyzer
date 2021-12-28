@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Numerics;
 using Aud.IO.Algorithms;
+using MathNet.Numerics;
 
 namespace AudioAnalyzer.FFTs
 {
@@ -34,7 +34,7 @@ namespace AudioAnalyzer.FFTs
         }
 
         /// <exception cref="ArgumentNullException"></exception>
-        public Complex[] FFT(double[] amplitudes)
+        public Complex32[] FFT(float[] amplitudes)
         {
             if (amplitudes is null)
             {
@@ -46,7 +46,7 @@ namespace AudioAnalyzer.FFTs
         }
 
         /// <exception cref="ArgumentNullException"></exception>
-        public double[] IFFT(Complex[] frequencyBins)
+        public float[] IFFT(Complex32[] frequencyBins)
         {
             if (frequencyBins is null)
             {

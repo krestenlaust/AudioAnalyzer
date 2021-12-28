@@ -1,22 +1,26 @@
 ﻿using System;
+using System.Collections;
 using System.ComponentModel;
-using System.Drawing;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Media;
-using System.Numerics;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using Aud.IO.Formats;
+using MathNet.Numerics;
 
 namespace AudioAnalyzer
 {
     public partial class FormAnalyzerWindow : Form
     {
         private const int MinWindowSamples = 500;
+        private const int SamplecountResolution = 1_000_000;
 
         private WaveFile editedWaveFile;
-        private double[] loadedAmplitudeData;
-        private Complex[] loadedFrequencyData;
+        private float[] loadedAmplitudeData;
+        private Complex32[] loadedFrequencyData;
         private ChartSelectionHelper timeDomain, frequencyDomain;
         /// <summary>
         /// Gemmer den sti der blev gemt til senest,
@@ -47,24 +51,40 @@ namespace AudioAnalyzer
             statusStripMain.Update();
         }
 
-        private void LoadAudiofileAndPopulate(string path)
+        private async Task LoadAudiofileAndPopulate(string path)
         {
-            editedWaveFile = new WaveFile(path);
+            // Fjern nuværende fil data.
+            editedWaveFile = null;
+            loadedAmplitudeData = null;
+            loadedFrequencyData = null;
+            ClearPoints(chartTimeDomain);
+            ClearPoints(chartFrequencyDomain);
+            GC.Collect();
+
+            UpdateStatusStrip($"Indlæser lydfil: {path}");
+
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            editedWaveFile = await WaveFile.LoadFileAsync(path);
             loadedAmplitudeData = editedWaveFile.GetDemodulatedAudio();
             Text = Path.GetFileName(path);
-            UpdateStatusStrip($"Indlæste lydfil på længde: {editedWaveFile.AudioDuration:F2} sekunder");
-
             PopulateTimeDomainGraph(loadedAmplitudeData);
+            sw.Stop();
+
+            UpdateStatusStrip($"Indlæste lydfil på {sw.Elapsed.TotalSeconds:F2} sekunder");
         }
 
-        private void SaveFile(string filePath)
+        private async Task SaveFile(string filePath)
         {
-            editedWaveFile.WriteAudioFile(filePath);
+            UpdateStatusStrip($"Gemmer lydfil til placeringen: {filePath}");
+            await editedWaveFile.WriteAudioFileAsync(filePath);
             this.Text = filePath;
+            UpdateStatusStrip($"Lydfil gemt til placeringen: {filePath}");
         }
 
         private void ClearPoints(Chart chart)
         {
+            // Langt hurtigere end at bruge normal clear metode.
             chart.Series.Add(new Series()
             {
                 ChartType = chart.Series[0].ChartType,
@@ -74,33 +94,54 @@ namespace AudioAnalyzer
             chart.Series.RemoveAt(0);
         }
 
-
-        private void PopulateTimeDomainGraph(double[] analogAmplitude)
+        private void PopulateTimeDomainGraph(float[] analogData)
         {
             ClearPoints(chartTimeDomain);
             timeDomain.Deselect();
             chartTimeDomain.ChartAreas[0].CursorX.Interval = 1 / editedWaveFile.SampleRate;
 
-            for (int i = 0; i < analogAmplitude.Length; i++)
+            int dataSize = Math.Min(analogData.Length, SamplecountResolution);
+            float xSpacingModifier = (float)analogData.Length / dataSize;
+
+            float[] xValues = new float[dataSize];
+            for (int i = 0; i < dataSize; i++)
             {
-                double xValue = (double)i / editedWaveFile.SampleRate;
-                chartTimeDomain.Series[0].Points.AddXY(xValue, analogAmplitude[i]);
+                xValues[i] = (i * xSpacingModifier) / editedWaveFile.SampleRate;
             }
+
+            float[] yValues = new float[dataSize];
+            for (int i = 0; i < dataSize; i++)
+            {
+                // TODO: implement lerping to possibly get a more accurate value
+                yValues[i] = analogData[(int)Math.Round(i * xSpacingModifier)];
+            }
+
+            // En smule hurtigere end at tilføje dem en ad gangen
+            chartTimeDomain.Series[0].Points.DataBindXY(xValues, yValues);
         }
 
-        private void PopulateFrequencyDomainGraph(Complex[] frequencyBins)
+        private void PopulateFrequencyDomainGraph(Complex32[] frequencyBins)
         {
-            ClearPoints(chartFrequencyDomain);
-
             float frequencyBinSize = (float)editedWaveFile.SampleRate / frequencyBins.Length;
 
-            for (int i = 0; i < frequencyBins.Length / 2; i++)
+            ClearPoints(chartFrequencyDomain);
+            frequencyDomain.Deselect();
+            chartFrequencyDomain.ChartAreas[0].CursorX.Interval = frequencyBinSize;
+            int dataCount = frequencyBins.Length / 2;
+
+            float[] xValues = new float[dataCount];
+            for (int i = 0; i < dataCount; i++)
             {
-                chartFrequencyDomain.Series[0].Points.AddXY(
-                    frequencyBinSize * (i + 1),
-                    frequencyBins[i].Magnitude / ((double)frequencyBins.Length / 2)
-                    );
+                xValues[i] = frequencyBinSize * (i + 1);
             }
+
+            float[] yValues = new float[dataCount];
+            for (int i = 0; i < dataCount; i++)
+            {
+                yValues[i] = frequencyBins[i].Magnitude / dataCount;
+            }
+
+            chartFrequencyDomain.Series[0].Points.DataBindXY(xValues, yValues);
         }
 
         private void TimeDomain_OnUpdatedSelection()
@@ -137,7 +178,7 @@ namespace AudioAnalyzer
 
             if (toFFT)
             {
-                double[] inputData = new double[windowSize];
+                float[] inputData = new float[windowSize];
 
                 for (int i = 0; i < length; i++)
                 {
@@ -148,7 +189,7 @@ namespace AudioAnalyzer
             }
             else
             {
-                Complex[] inputData = new Complex[windowSize];
+                Complex32[] inputData = new Complex32[windowSize];
 
                 for (int i = 0; i < length; i++)
                 {
@@ -234,12 +275,12 @@ namespace AudioAnalyzer
                 return;
             }
 
-            if (e.Result is Complex[] toFFT)
+            if (e.Result is Complex32[] toFFT)
             {
                 loadedFrequencyData = toFFT;
                 PopulateFrequencyDomainGraph(loadedFrequencyData);
             }
-            else if (e.Result is double[] toAmplitude)
+            else if (e.Result is float[] toAmplitude)
             {
                 loadedAmplitudeData = toAmplitude;
                 editedWaveFile.SetDemodulatedAudio(loadedAmplitudeData);
@@ -249,31 +290,31 @@ namespace AudioAnalyzer
 
         private void toolStripSplitButton1_ButtonClick(object sender, EventArgs e) => discordJoinToolStripMenuItem_Click(sender, e);
 
-        private void openFileDialogAudioFile_FileOk(object sender, CancelEventArgs e)
+        private async void openFileDialogAudioFile_FileOk(object sender, CancelEventArgs e)
         {
             if (!openFileDialogAudioFile.CheckFileExists)
             {
                 return;
             }
 
-            LoadAudiofileAndPopulate(openFileDialogAudioFile.FileName);
+            await LoadAudiofileAndPopulate(openFileDialogAudioFile.FileName);
         }
 
-        private void saveFileDialogAudioFile_FileOk(object sender, CancelEventArgs e)
+        private async void saveFileDialogAudioFile_FileOk(object sender, CancelEventArgs e)
         {
-            SaveFile(saveFileDialogAudioFile.FileName);
             lastSavedPath = saveFileDialogAudioFile.FileName;
+            await SaveFile(saveFileDialogAudioFile.FileName);
         }
 
-        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (lastSavedPath is null)
             {
-                saveAsToolStripMenuItem_Click(sender, e);
+                saveFileDialogAudioFile.ShowDialog();
                 return;
             }
 
-            SaveFile(lastSavedPath);
+            await SaveFile(lastSavedPath);
         }
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -286,7 +327,7 @@ namespace AudioAnalyzer
             this.Close();
         }
 
-        private void PlayAudio()
+        private async Task PlayAudio()
         {
             if (editedWaveFile is null)
             {
@@ -296,7 +337,7 @@ namespace AudioAnalyzer
 
             // Write current audio represented in editedWaveFile.
             string tempFile = Path.GetTempFileName();
-            editedWaveFile.WriteAudioFile(tempFile);
+            await editedWaveFile.WriteAudioFileAsync(tempFile);
 
             // Load temporary file into memory to delete it afterwards.
             MemoryStream waveFile = new MemoryStream(File.ReadAllBytes(tempFile));
@@ -307,26 +348,32 @@ namespace AudioAnalyzer
             soundPlayer.Play();
         }
 
-        private void FormAnalyzerWindow_KeyUp(object sender, KeyEventArgs e)
+        private async void FormAnalyzerWindow_KeyUp(object sender, KeyEventArgs e)
         {
             switch (e.KeyCode)
             {
                 case Keys.Space:
-                    PlayAudio();
+                    await PlayAudio();
                     break;
                 case Keys.S when e.Control && !(editedWaveFile is null):
-                    saveToolStripMenuItem_Click(null, null);
+                    if (lastSavedPath is null)
+                    {
+                        saveFileDialogAudioFile.ShowDialog();
+                        return;
+                    }
+
+                    await SaveFile(lastSavedPath);
                     break;
                 default:
                     break;
             }
         }
 
-        private void buttonAudioPlay_Click(object sender, EventArgs e)
+        private async void buttonAudioPlay_Click(object sender, EventArgs e)
         {
             this.Focus();
             
-            PlayAudio();
+            await PlayAudio();
         }
 
         private void buttonAudioStop_Click(object sender, EventArgs e)
@@ -347,7 +394,7 @@ namespace AudioAnalyzer
                     break;
                 }
                 
-                loadedFrequencyData[i] = Complex.Zero;
+                loadedFrequencyData[i] = Complex32.Zero;
             }
 
             // Modificer det spejlvendte område også
@@ -359,7 +406,7 @@ namespace AudioAnalyzer
                     break;
                 }
 
-                loadedFrequencyData[i] = Complex.Zero;
+                loadedFrequencyData[i] = Complex32.Zero;
             }
         }
 
@@ -383,7 +430,7 @@ namespace AudioAnalyzer
             }
         }
 
-        private void chartTimeDomain_KeyUp(object sender, KeyEventArgs e)
+        private async void chartTimeDomain_KeyUp(object sender, KeyEventArgs e)
         {
             switch (e.KeyCode)
             {
@@ -391,26 +438,11 @@ namespace AudioAnalyzer
 
                     break;
                 case Keys.Space:
-                    PlayAudio();
+                    await PlayAudio();
                     break;
                 default:
                     break;
             }
-        }
-
-        private void deleteSelectionToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void og250ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            LoadAudiofileAndPopulate(@"C:\Users\kress\Documents\SOP\440 og 250 frekvens 441 samplerate.wav");
-        }
-
-        private void toolStripMenuItem2_Click(object sender, EventArgs e)
-        {
-            LoadAudiofileAndPopulate(@"C:\Users\kress\Documents\SOP\440 frekvens 441 samplerate sinus ny.wav");
         }
 
         private void radioButtonAlgorithmHomemade_CheckedChanged(object sender, EventArgs e)
@@ -425,9 +457,24 @@ namespace AudioAnalyzer
             }
         }
 
-        private void discordJoinToolStripMenuItem_Click(object sender, EventArgs e)
+        private void deleteSelectionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            LoadAudiofileAndPopulate(@"C:\Users\kress\Downloads\discord join.wav");
+
+        }
+
+        private async void og250ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            await LoadAudiofileAndPopulate(@"C:\Users\kress\Documents\SOP\440 og 250 frekvens 441 samplerate.wav");
+        }
+
+        private async void toolStripMenuItem2_Click(object sender, EventArgs e)
+        {
+            await LoadAudiofileAndPopulate(@"C:\Users\kress\Documents\SOP\440 frekvens 441 samplerate sinus ny.wav");
+        }
+
+        private async void discordJoinToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            await LoadAudiofileAndPopulate (@"C:\Users\kress\Downloads\discord join.wav");
         }
     }
 }

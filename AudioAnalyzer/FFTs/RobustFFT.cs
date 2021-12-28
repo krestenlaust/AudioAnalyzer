@@ -18,7 +18,7 @@ namespace AudioAnalyzer.FFTs
         }
 
         /// <exception cref="ArgumentNullException"></exception>
-        public Complex[] FFT(double[] amplitudes)
+        public Complex32[] FFT(float[] amplitudes)
         {
             if (amplitudes is null)
             {
@@ -34,18 +34,11 @@ namespace AudioAnalyzer.FFTs
 
             Fourier.Forward(fftInput);
 
-            // Omdan til Complex array i stedet for Complex32
-            Complex[] frequencies = new Complex[fftInput.Length];
-            for (int i = 0; i < fftInput.Length; i++)
-            {
-                frequencies[i] = new Complex(fftInput[i].Real, fftInput[i].Imaginary);
-            }
-
-            return frequencies;
+            return fftInput;
         }
 
         /// <exception cref="ArgumentNullException"></exception>
-        public double[] IFFT(Complex[] frequencyBins)
+        public float[] IFFT(Complex32[] frequencyBins)
         {
             if (frequencyBins is null)
             {
@@ -63,13 +56,13 @@ namespace AudioAnalyzer.FFTs
             Fourier.Inverse(inputFrequency);
 
             // Complex32 til double array
-            double[] outputAmplitude = new double[inputFrequency.Length];
+            float[] outputAmplitudes = new float[inputFrequency.Length];
             for (int i = 0; i < inputFrequency.Length; i++)
             {
-                outputAmplitude[i] = inputFrequency[i].Real;
+                outputAmplitudes[i] = inputFrequency[i].Real;
             }
 
-            return outputAmplitude;
+            return outputAmplitudes;
         }
     }
 }
