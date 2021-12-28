@@ -33,6 +33,13 @@
         public abstract uint BitsPerSample { get; }
 
         /// <summary>
+        /// Gets the amount of channels, 1 for mono, 2 for stereo.
+        /// </summary>
+        public abstract ushort ChannelCount { get; }
+
+        public abstract uint ByteRate { get; }
+
+        /// <summary>
         /// Writes the audio file to the specified file path (doesn't add extension).
         /// </summary>
         /// <param name="filePath">The file to load.</param>

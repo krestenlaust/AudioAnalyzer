@@ -45,8 +45,8 @@ namespace Aud.IO.Formats
                 }
 
                 byte[] chunkSizeBytes = new byte[sizeof(uint)];
-                byte[] formatBytes = new byte[sizeof(int)];
                 stream.Read(chunkSizeBytes, 0, chunkSizeBytes.Length);
+                byte[] formatBytes = new byte[sizeof(int)];
                 stream.Read(formatBytes, 0, formatBytes.Length);
                 string format = Encoding.ASCII.GetString(formatBytes);
 
@@ -59,12 +59,12 @@ namespace Aud.IO.Formats
                 DataSubchunk? dataSubchunk = null;
 
                 // Læs subchunks indtil filen er færdig-læst.
-                while (stream.Length != stream.Position)
+                while (stream.Length > stream.Position)
                 {
                     // Aflæs subchunk ID
                     byte[] subchunkIDBytes = new byte[sizeof(int)];
-                    byte[] subchunkSizeBytes = new byte[sizeof(uint)];
                     stream.Read(subchunkIDBytes, 0, subchunkIDBytes.Length);
+                    byte[] subchunkSizeBytes = new byte[sizeof(uint)];
                     stream.Read(subchunkSizeBytes, 0, subchunkSizeBytes.Length);
 
                     string subchunkID = Encoding.ASCII.GetString(subchunkIDBytes);
@@ -74,7 +74,9 @@ namespace Aud.IO.Formats
                     switch (subchunkID)
                     {
                         case "fmt ":
-                            byte[] formatSubchunkBytes = new byte[(sizeof(ushort) * 4) + (sizeof(uint) * 2)];
+                            // Der kan ifl. standarden være vilkårlige ekstra parametre til sidst, de læses også bare
+                            // kun de første 16 bytes bliver brugt alligevel
+                            byte[] formatSubchunkBytes = new byte[subchunkSize];
                             stream.Read(formatSubchunkBytes, 0, formatSubchunkBytes.Length);
 
                             formatSubchunk = new FormatSubchunk(
@@ -84,13 +86,6 @@ namespace Aud.IO.Formats
                                 BitConverter.ToUInt32(formatSubchunkBytes, 8),
                                 BitConverter.ToUInt16(formatSubchunkBytes, 12),
                                 BitConverter.ToUInt16(formatSubchunkBytes, 14));
-
-                            // Hvis der er ukendte ekstra parametre (ifl. standarden er det muligt)
-                            if (formatSubchunkBytes.Length < subchunkSize)
-                            {
-                                // Spring over dem.
-                                stream.Seek(subchunkSize - formatSubchunkBytes.Length, SeekOrigin.Current);
-                            }
 
                             break;
                         case "data":
@@ -138,6 +133,12 @@ namespace Aud.IO.Formats
         /// <inheritdoc/>
         public override double AudioDuration => (Samples / waveData.Subchunk1.NumChannels) / (double)SampleRate;
 
+        /// <inheritdoc/>
+        public override ushort ChannelCount => waveData.Subchunk1.NumChannels;
+
+        /// <inheritdoc/>
+        public override uint ByteRate => waveData.Subchunk1.ByteRate;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="WaveFile"/> class.
         /// Læser og behandler lydfilen asynkront.
@@ -170,8 +171,8 @@ namespace Aud.IO.Formats
                 }
 
                 byte[] chunkSizeBytes = new byte[sizeof(uint)];
-                byte[] formatBytes = new byte[sizeof(int)];
                 await stream.ReadAsync(chunkSizeBytes, 0, chunkSizeBytes.Length);
+                byte[] formatBytes = new byte[sizeof(int)];
                 await stream.ReadAsync(formatBytes, 0, formatBytes.Length);
                 string format = Encoding.ASCII.GetString(formatBytes);
 
@@ -184,12 +185,12 @@ namespace Aud.IO.Formats
                 DataSubchunk? dataSubchunk = null;
 
                 // Læs subchunks indtil filen er færdig-læst.
-                while (stream.Length != stream.Position)
+                while (stream.Length > stream.Position)
                 {
                     // Aflæs subchunk ID
                     byte[] subchunkIDBytes = new byte[sizeof(int)];
-                    byte[] subchunkSizeBytes = new byte[sizeof(uint)];
                     await stream.ReadAsync(subchunkIDBytes, 0, subchunkIDBytes.Length);
+                    byte[] subchunkSizeBytes = new byte[sizeof(uint)];
                     await stream.ReadAsync(subchunkSizeBytes, 0, subchunkSizeBytes.Length);
 
                     string subchunkID = Encoding.ASCII.GetString(subchunkIDBytes);

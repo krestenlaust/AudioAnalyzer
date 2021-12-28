@@ -33,6 +33,7 @@ namespace AudioAnalyzer
         public FormAnalyzerWindow()
         {
             InitializeComponent();
+            pictureBoxDragIcon.Enabled = false;
         }
 
         private void FormAnalyzerWindow_Load(object sender, EventArgs e)
@@ -51,7 +52,7 @@ namespace AudioAnalyzer
             statusStripMain.Update();
         }
 
-        private async Task LoadAudiofileAndPopulate(string path)
+        private async Task LoadAudiofileAndPopulate(string path, bool customStartStatus=false)
         {
             // Fjern nuværende fil data.
             editedWaveFile = null;
@@ -61,17 +62,31 @@ namespace AudioAnalyzer
             ClearPoints(chartFrequencyDomain);
             GC.Collect();
 
-            UpdateStatusStrip($"Indlæser lydfil: {path}");
+            // Hvis en fil er trukket, skriver metoden selv, hvordan det gik.
+            if (!customStartStatus)
+            {
+                UpdateStatusStrip($"Indlæser lydfil: {path}");
+            }
 
             Stopwatch sw = new Stopwatch();
             sw.Start();
             editedWaveFile = await WaveFile.LoadFileAsync(path);
             loadedAmplitudeData = editedWaveFile.GetDemodulatedAudio();
             Text = Path.GetFileName(path);
+            UseWaitCursor = true;
             PopulateTimeDomainGraph(loadedAmplitudeData);
             sw.Stop();
+            UseWaitCursor = false;
 
             UpdateStatusStrip($"Indlæste lydfil på {sw.Elapsed.TotalSeconds:F2} sekunder");
+        }
+
+        private void PopulateMetadataTab()
+        {
+            //labelChannelCount.Text = editedWaveFile.ChannelCount == 2 ? "Stereo" : "Mono";
+            //labelSamplerate.Text = editedWaveFile.SampleRate.ToString();
+            //labelByterate.Text = editedWaveFile.ByteRate.ToString();
+            //labelBitsPerSample.Text = editedWaveFile.BitsPerSample.ToString();
         }
 
         private async Task SaveFile(string filePath)
@@ -112,7 +127,7 @@ namespace AudioAnalyzer
             float[] yValues = new float[dataSize];
             for (int i = 0; i < dataSize; i++)
             {
-                // TODO: implement lerping to possibly get a more accurate value
+                // TODO: implement LERPing to possibly get a more accurate value
                 yValues[i] = analogData[(int)Math.Round(i * xSpacingModifier)];
             }
 
@@ -472,9 +487,50 @@ namespace AudioAnalyzer
             await LoadAudiofileAndPopulate(@"C:\Users\kress\Documents\SOP\440 frekvens 441 samplerate sinus ny.wav");
         }
 
+        private void ToggleDropTargetImage(bool shown)
+        {
+            pictureBoxDragIcon.Visible = shown;
+            pictureBoxDragIcon.Dock = shown ? DockStyle.Fill : DockStyle.None;
+        }
+
+        private void FormAnalyzerWindow_DragEnter(object sender, DragEventArgs e)
+        {
+            ToggleDropTargetImage(true);
+            e.Effect = DragDropEffects.Copy;
+        }
+
+        private async void FormAnalyzerWindow_DragDrop(object sender, DragEventArgs e)
+        {
+            var filePaths = (string[])e.Data.GetData(DataFormats.FileDrop, false);
+            ToggleDropTargetImage(false);
+
+            if (filePaths.Length == 0)
+            {
+                return;
+            }
+            
+            string targetFile = filePaths[0];
+
+            if (filePaths.Length > 1)
+            {
+                UpdateStatusStrip($"Flere filer trukket indlæser (første) fil fra placering: {targetFile}");
+                await LoadAudiofileAndPopulate(targetFile, true);
+
+            }
+            else
+            {
+                await LoadAudiofileAndPopulate(targetFile, false);
+            }
+        }
+
+        private void FormAnalyzerWindow_DragLeave(object sender, EventArgs e)
+        {
+            ToggleDropTargetImage(false);
+        }
+
         private async void discordJoinToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            await LoadAudiofileAndPopulate (@"C:\Users\kress\Downloads\discord join.wav");
+            await LoadAudiofileAndPopulate(@"C:\Users\kress\Downloads\discord join.wav");
         }
     }
 }
