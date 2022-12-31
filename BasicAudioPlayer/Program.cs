@@ -46,7 +46,8 @@ namespace BasicAudioPlayer
 
             foreach (var tone in tones)
             {
-                var thread = new Thread((tone) => {
+                var thread = new Thread((tone) =>
+                {
                     manuelResetEventSlim.Wait();
                     ToneBeep((Tone)tone);
                     Console.WriteLine($"Playing tone: {((Tone)tone).Frequency} Hz {((Tone)tone).TimeOffset}");

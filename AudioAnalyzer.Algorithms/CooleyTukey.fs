@@ -1,4 +1,4 @@
-﻿namespace Aud.IO.Algorithms
+﻿namespace AudioAnalyzer.Algorithms
 
 open System
 open MathNet.Numerics

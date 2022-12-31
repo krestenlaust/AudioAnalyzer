@@ -1,8 +1,7 @@
-using System.Collections.Generic;
 using MathNet.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Aud.IO.Algorithms.Tests
+namespace AudioAnalyzer.Algorithms.Tests
 {
     [TestClass]
     public class FFTTests
@@ -68,23 +67,23 @@ namespace Aud.IO.Algorithms.Tests
             // Inverse
             //  float[] amplitudes1 = new float[] { 1, -1, 1, -1 }; = 4
             float[] restoredAmplitudes1 = CooleyTukey.Backward(output1); // * 2
-            //Assert.AreEqual(amplitudes1[0], restoredAmplitudes1[0]);
-            //Assert.AreEqual(amplitudes1[1], restoredAmplitudes1[1]);
-            //Assert.AreEqual(amplitudes1[2], restoredAmplitudes1[2]);
-            //Assert.AreEqual(amplitudes1[3], restoredAmplitudes1[3]);
-            
+                                                                         //Assert.AreEqual(amplitudes1[0], restoredAmplitudes1[0]);
+                                                                         //Assert.AreEqual(amplitudes1[1], restoredAmplitudes1[1]);
+                                                                         //Assert.AreEqual(amplitudes1[2], restoredAmplitudes1[2]);
+                                                                         //Assert.AreEqual(amplitudes1[3], restoredAmplitudes1[3]);
+
             //  float[] amplitudes2 = new float[] { 2, -2, 2, -2 }; = 4
             float[] restoredAmplitudes2 = CooleyTukey.Backward(output2); // * 2
-            //Assert.AreEqual(amplitudes2[0], restoredAmplitudes2[0]);
-            //Assert.AreEqual(amplitudes2[1], restoredAmplitudes2[1]);
-            //Assert.AreEqual(amplitudes2[2], restoredAmplitudes2[2]);
-            //Assert.AreEqual(amplitudes2[3], restoredAmplitudes2[3]);            
-            
+                                                                         //Assert.AreEqual(amplitudes2[0], restoredAmplitudes2[0]);
+                                                                         //Assert.AreEqual(amplitudes2[1], restoredAmplitudes2[1]);
+                                                                         //Assert.AreEqual(amplitudes2[2], restoredAmplitudes2[2]);
+                                                                         //Assert.AreEqual(amplitudes2[3], restoredAmplitudes2[3]);            
+
             //  float[] amplitudes3 = new float[] { 2, -2 }; = 2
             float[] restoredAmplitudes3 = CooleyTukey.Backward(output3); // * 1
-            //Assert.AreEqual(amplitudes3[0], restoredAmplitudes3[0]);
-            //Assert.AreEqual(amplitudes3[1], restoredAmplitudes3[1]);
-            
+                                                                         //Assert.AreEqual(amplitudes3[0], restoredAmplitudes3[0]);
+                                                                         //Assert.AreEqual(amplitudes3[1], restoredAmplitudes3[1]);
+
             //  float[] amplitudes4 = new float[] { 1, -1, 1, -1, 1, -1, 1, -1 }; = 8
             float[] restoredAmplitudes4 = CooleyTukey.Backward(output4); // * 8
             //Assert.AreEqual(amplitudes4[0], restoredAmplitudes4[0]);

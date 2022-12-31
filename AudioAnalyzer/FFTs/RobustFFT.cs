@@ -1,6 +1,5 @@
-﻿using MathNet.Numerics;
-using System;
-using System.Numerics;
+﻿using System;
+using MathNet.Numerics;
 using MathNet.Numerics.IntegralTransforms;
 
 namespace AudioAnalyzer.FFTs

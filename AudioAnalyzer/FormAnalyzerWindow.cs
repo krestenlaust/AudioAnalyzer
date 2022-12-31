@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Media;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -52,7 +50,7 @@ namespace AudioAnalyzer
             statusStripMain.Update();
         }
 
-        private async Task LoadAudiofileAndPopulate(string path, bool customStartStatus=false)
+        private async Task LoadAudiofileAndPopulate(string path, bool customStartStatus = false)
         {
             // Fjern nuværende fil data.
             editedWaveFile = null;
@@ -387,28 +385,28 @@ namespace AudioAnalyzer
         private async void buttonAudioPlay_Click(object sender, EventArgs e)
         {
             this.Focus();
-            
+
             await PlayAudio();
         }
 
         private void buttonAudioStop_Click(object sender, EventArgs e)
         {
             this.Focus();
-            
+
             soundPlayer?.Stop();
         }
 
         private void DeleteFromFrequencyDomain(int index, int length)
         {
             int N = loadedFrequencyData.Length;
-            for (int i = index; i < N/2; i++)
+            for (int i = index; i < N / 2; i++)
             {
                 // Er nået slutningen af området.
                 if (i > index + length)
                 {
                     break;
                 }
-                
+
                 loadedFrequencyData[i] = Complex32.Zero;
             }
 
@@ -508,7 +506,7 @@ namespace AudioAnalyzer
             {
                 return;
             }
-            
+
             string targetFile = filePaths[0];
 
             if (filePaths.Length > 1)

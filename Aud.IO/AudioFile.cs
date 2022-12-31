@@ -51,6 +51,8 @@
         /// <returns>LPCM demodulated audio.</returns>
         public abstract float[] GetDemodulatedAudio();
 
+        public abstract byte[] GetModulatedAudio();
+
         /// <summary>
         /// Sets audio by audio data not modulated using LPCM.
         /// </summary>

@@ -1,6 +1,6 @@
 ﻿using System;
-using Aud.IO.Algorithms;
 using MathNet.Numerics;
+using AudioAnalyzer.Algorithms;
 
 namespace AudioAnalyzer.FFTs
 {

@@ -271,6 +271,12 @@ namespace Aud.IO.Formats
         }
 
         /// <inheritdoc/>
+        public override byte[] GetModulatedAudio()
+        {
+            return waveData.Subchunk2.Data;
+        }
+
+        /// <inheritdoc/>
         public override void SetDemodulatedAudio(float[] audio)
         {
             if (audio is null)

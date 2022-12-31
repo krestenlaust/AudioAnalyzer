@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
@@ -135,7 +131,7 @@ namespace AudioAnalyzer
             Axis ax = chart.ChartAreas[0].AxisX;
 
             int newPixelX = e.Location.X;
-            
+
             // Trækker udenfor grafen, ignorer indtil de er indenfor.
             if (newPixelX < minXDrag)
             {
