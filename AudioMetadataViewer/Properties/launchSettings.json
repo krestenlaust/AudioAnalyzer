@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "AudioMetadataViewer": {
-      "commandName": "Project",
-      "commandLineArgs": "\"C:\\Users\\kress\\Documents\\SOP\\440 frekvens 441 samplerate sinus.wav\""
-    }
-  }
-}

@@ -101,10 +101,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Aud.IO\Aud.IO.csproj">
-      <Project>{a25ee2f1-07c9-440c-b46a-4dff7e7c11c8}</Project>
-      <Name>Aud.IO</Name>
-    </ProjectReference>
     <ProjectReference Include="..\AudioAnalyzer.Algorithms\AudioAnalyzer.Algorithms.fsproj">
       <Project>{f4e19636-9206-49d2-861e-fdec943847f1}</Project>
       <Name>AudioAnalyzer.Algorithms</Name>
