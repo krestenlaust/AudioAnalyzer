@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Aud.IO.Algorithms\AudioAnalyzer.Algorithms.fsproj" />
+    <ProjectReference Include="..\AudioAnalyzer.Algorithms\AudioAnalyzer.Algorithms.fsproj" />
   </ItemGroup>
 
 </Project>

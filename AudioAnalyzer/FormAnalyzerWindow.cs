@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Media;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
@@ -63,7 +64,7 @@ namespace AudioAnalyzer
             // Hvis en fil er trukket, skriver metoden selv, hvordan det gik.
             if (!customStartStatus)
             {
-                UpdateStatusStrip($"Indlæser lydfil: {path}");
+                UpdateStatusStrip($"Loading audio file: {path}");
             }
 
             Stopwatch sw = new Stopwatch();
@@ -76,7 +77,7 @@ namespace AudioAnalyzer
             sw.Stop();
             UseWaitCursor = false;
 
-            UpdateStatusStrip($"Indlæste lydfil på {sw.Elapsed.TotalSeconds:F2} sekunder");
+            UpdateStatusStrip($"Loaded audio file in {sw.Elapsed.TotalSeconds:F2} seconds");
         }
 
         private void PopulateMetadataTab()
@@ -89,16 +90,16 @@ namespace AudioAnalyzer
 
         private async Task SaveFile(string filePath)
         {
-            UpdateStatusStrip($"Gemmer lydfil til placeringen: {filePath}");
+            UpdateStatusStrip($"Saving audio at location: {filePath}");
             await editedWaveFile.WriteAudioFileAsync(filePath);
             this.Text = filePath;
-            UpdateStatusStrip($"Lydfil gemt til placeringen: {filePath}");
+            UpdateStatusStrip($"Audio saved to: {filePath}");
         }
 
         private void ClearPoints(Chart chart)
         {
             // Langt hurtigere end at bruge normal clear metode.
-            chart.Series.Add(new Series()
+            chart.Series.Add(new System.Windows.Forms.DataVisualization.Charting.Series()
             {
                 ChartType = chart.Series[0].ChartType,
                 XValueType = chart.Series[0].XValueType,
@@ -162,11 +163,11 @@ namespace AudioAnalyzer
             int rangeLength = (int)(timeDomain.SelectionLength * editedWaveFile.SampleRate);
             if (rangeLength >= MinWindowSamples)
             {
-                UpdateStatusStrip($"Du har markeret {rangeLength} datapunkter");
+                UpdateStatusStrip($"{rangeLength} data points selected");
             }
             else
             {
-                UpdateStatusStrip($"Du har markeret {rangeLength}/{MinWindowSamples} datapunkter");
+                UpdateStatusStrip($"{rangeLength}/{MinWindowSamples} data points selected");
             }
         }
 
@@ -242,7 +243,7 @@ namespace AudioAnalyzer
 
             if (selectionLengthIndex < MinWindowSamples)
             {
-                UpdateStatusStrip($"Ikke nok data markeret, markér mindst {MinWindowSamples} datapunkter");
+                UpdateStatusStrip($"Not enough data has been selected, select at least {MinWindowSamples} data points");
                 return;
             }
 
@@ -254,7 +255,7 @@ namespace AudioAnalyzer
         {
             if (loadedAmplitudeData is null)
             {
-                UpdateStatusStrip("Ingen lyd at konvertere");
+                UpdateStatusStrip("No audio to convert");
                 return;
             }
 
@@ -267,7 +268,7 @@ namespace AudioAnalyzer
         {
             if (loadedFrequencyData is null)
             {
-                UpdateStatusStrip("Ingen FFT graf at konvertere");
+                UpdateStatusStrip("No FFT graph to convert");
                 return;
             }
 
@@ -300,8 +301,6 @@ namespace AudioAnalyzer
                 PopulateTimeDomainGraph(loadedAmplitudeData);
             }
         }
-
-        private void toolStripSplitButton1_ButtonClick(object sender, EventArgs e) => discordJoinToolStripMenuItem_Click(sender, e);
 
         private async void openFileDialogAudioFile_FileOk(object sender, CancelEventArgs e)
         {
@@ -344,7 +343,7 @@ namespace AudioAnalyzer
         {
             if (editedWaveFile is null)
             {
-                UpdateStatusStrip("Ingen lyd at afspille");
+                UpdateStatusStrip("No audio to play");
                 return;
             }
 
@@ -359,6 +358,7 @@ namespace AudioAnalyzer
             // Play the audio file from memory.
             soundPlayer = new SoundPlayer(waveFile);
             soundPlayer.Play();
+            Thread.Sleep(1000);
         }
 
         private async void FormAnalyzerWindow_KeyUp(object sender, KeyEventArgs e)
@@ -475,16 +475,6 @@ namespace AudioAnalyzer
 
         }
 
-        private async void og250ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            await LoadAudiofileAndPopulate(@"C:\Users\kress\Documents\SOP\440 og 250 frekvens 441 samplerate.wav");
-        }
-
-        private async void toolStripMenuItem2_Click(object sender, EventArgs e)
-        {
-            await LoadAudiofileAndPopulate(@"C:\Users\kress\Documents\SOP\440 frekvens 441 samplerate sinus ny.wav");
-        }
-
         private void ToggleDropTargetImage(bool shown)
         {
             pictureBoxDragIcon.Visible = shown;
@@ -511,7 +501,7 @@ namespace AudioAnalyzer
 
             if (filePaths.Length > 1)
             {
-                UpdateStatusStrip($"Flere filer trukket indlæser (første) fil fra placering: {targetFile}");
+                UpdateStatusStrip($"Multiple files dropped, reading first file at: {targetFile}");
                 await LoadAudiofileAndPopulate(targetFile, true);
 
             }
@@ -524,11 +514,6 @@ namespace AudioAnalyzer
         private void FormAnalyzerWindow_DragLeave(object sender, EventArgs e)
         {
             ToggleDropTargetImage(false);
-        }
-
-        private async void discordJoinToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            await LoadAudiofileAndPopulate(@"C:\Users\kress\Downloads\discord join.wav");
         }
     }
 }
