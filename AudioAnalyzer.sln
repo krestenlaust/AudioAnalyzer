@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{60E65AE1-1366-4B3A-A514-361110F7B1F8}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "AudioAnalyzer.Algorithms", "AudioAnalyzer.Algorithms\AudioAnalyzer.Algorithms.fsproj", "{F4E19636-9206-49D2-861E-FDEC943847F1}"
